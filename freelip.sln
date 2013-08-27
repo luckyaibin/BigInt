@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "freelip", "freelip\freelip.vcproj", "{B72DC55F-9EE5-43FE-9C6D-C6ACE30B9DAE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MyLIP", "MyLIP\MyLIP.vcproj", "{381871A4-B596-4E1E-A4CF-C46169306E77}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B72DC55F-9EE5-43FE-9C6D-C6ACE30B9DAE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B72DC55F-9EE5-43FE-9C6D-C6ACE30B9DAE}.Debug|Win32.Build.0 = Debug|Win32
+		{B72DC55F-9EE5-43FE-9C6D-C6ACE30B9DAE}.Release|Win32.ActiveCfg = Release|Win32
+		{B72DC55F-9EE5-43FE-9C6D-C6ACE30B9DAE}.Release|Win32.Build.0 = Release|Win32
+		{381871A4-B596-4E1E-A4CF-C46169306E77}.Debug|Win32.ActiveCfg = Debug|Win32
+		{381871A4-B596-4E1E-A4CF-C46169306E77}.Debug|Win32.Build.0 = Debug|Win32
+		{381871A4-B596-4E1E-A4CF-C46169306E77}.Release|Win32.ActiveCfg = Release|Win32
+		{381871A4-B596-4E1E-A4CF-C46169306E77}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
