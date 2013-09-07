@@ -108,12 +108,12 @@ struct BigInt
 
 		for (int i=0;i<length;i++)
 		{
-			N.Dump();
+			//N.Dump();
 			int n = numbers[i]-'0';
 			N.Mul(10);
-			N.Dump();
+			//N.Dump();
 			N.Add(n);
-			N.Dump();
+			//N.Dump();
 		}
 	}
 	friend BigInt Add(const BigInt& N1,const BigInt& N2)
@@ -138,64 +138,97 @@ struct BigInt
 	}
 
 
-//N1 > N2,那么N1长度大于等于N2长度
-friend BigInt Minus(const BigInt& N1,const BigInt& N2)
-{
-	BigInt R;
-	R = N1;
-	
-	for (int index=0;index<N2.Length();index++)
+	//N1 > N2,那么N1长度大于等于N2长度
+	friend BigInt Minus(const BigInt& N1,const BigInt& N2)
 	{
-		uint32 v = N2.GetRadixBits(index);
-		R.MinusRadixBits(v,index);
-	}
-	return R;
-}
-
-
-/*
-						a		b		c   :index1 0~2
-				  d		e		f		g   :index2 0~3
-				  ------------------------
-					   a*g     b*g     c*g
-				 a*f   b*f     c*f           
-         a*e     b*e   c*e 
- a*d     b*d     c*d
-
- */
-friend  BigInt Mul(const BigInt& N1,const BigInt& N2)
-{
 		BigInt R;
+		R = N1;
 		
-		uint32 carry = 0;
-
-		uint64 v = 0;
-		uint32 index1 = 0;
-		uint32 index2 = 0;
-		for (;index1<N1.Length();index1++)
+		for (int index=0;index<N2.Length();index++)
 		{
-			for (;index2<N2.Length();index2++)
-			{
-				uint32 n1 = N1.GetRadixBits(index1);
-				uint32 n2 = N2.GetRadixBits(index2);
-
-				v = n1*n2 ;
-				carry = v / RADIX;
-				v = v % RADIX;
-
-				uint32 r = R.GetRadixBits(index1+index2);
-				//把值和进位加到结果中
-				R.AddRadixBits(v,index1+index2);
-				R.AddRadixBits(carry,index1+index2+1);
-			}
+			uint32 v = N2.GetRadixBits(index);
+			R.MinusRadixBits(v,index);
 		}
-	return R;
+		return R;
+	}
+
+
+	/*
+							a		b		c   :index1 0~2
+					  d		e		f		g   :index2 0~3
+					  ------------------------
+						   a*g     b*g     c*g
+					 a*f   b*f     c*f           
+			 a*e     b*e   c*e 
+	 a*d     b*d     c*d
+
+	 */
+	friend  BigInt Mul(const BigInt& N1,const BigInt& N2)
+	{
+			BigInt R;
+			
+			uint32 carry = 0;
+
+			uint64 v = 0;
+			uint32 index1 = 0;
+			uint32 index2 = 0;
+			for (;index1<N1.Length();index1++)
+			{
+				for (;index2<N2.Length();index2++)
+				{
+					uint32 n1 = N1.GetRadixBits(index1);
+					uint32 n2 = N2.GetRadixBits(index2);
+
+					v = n1*n2 ;
+					carry = v / RADIX;
+					v = v % RADIX;
+
+					uint32 r = R.GetRadixBits(index1+index2);
+					//把值和进位加到结果中
+					R.AddRadixBits(v,index1+index2);
+					R.AddRadixBits(carry,index1+index2+1);
+				}
+			}
+		return R;
+	};
+
+
+
+
+
+
+
+	BigInt operator+(const BigInt& X,const BigInt& Y);
+
+	// 11110000 11110000        00110011 11000011 11110000 00001111  (2)
+
+	BigInt operator>>(const BigInt& X,int bits)
+	{
+		BigInt result,zero;
+
+		if (bits>=X.Length()*4*8)
+		{
+			return zero;
+		}
+
+		int complete_ints = bits/32;
+		int remaind = bits%32;
+
+		for (int i=0;i<complete_ints;i++)
+		{
+			uint32 v = X.GetRadixBits(i);
+			result.SetRadixBits(v,i);
+		}
+		
+		 
+		uint32 lowmask = 0xffffffff >> remaind ;
+		uint32 himask = ~lowmask;
+
+		for (int j=0;j<remaind;j++)
+		{
+			
+		}
+
+	}
 
 };
-
-
-
-
-
-
-BigInt operator+(const BigInt& X,const BigInt& Y);
