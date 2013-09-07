@@ -220,13 +220,34 @@ struct BigInt
 			result.SetRadixBits(v,i);
 		}
 		
-		 
-		uint32 lowmask = 0xffffffff >> remaind ;
-		uint32 himask = ~lowmask;
+		
+		// 11110000 11110000 11110000 11110000 
+		
+		//右移一位
+		// 01111000 01111000 01111000 01111000
 
-		for (int j=0;j<remaind;j++)
+		uint32 hi_himask = 0xffffffff << remaind ;
+		uint32 hi_lowmask = 0xffffffff >> (32-remaind);
+
+		uint32 lo_himask = 0xffffffff << (32-remaind) ;
+		uint32 lo_lomask = 0xffffffff >> remaind;
+
+	
+		for (int j=0;j<result.Length();j++)
 		{
+			uint32 hi_v=result.GetRadixBits(j+1);
 			
+			uint32 bits_from_hi = hi_v & hi_lowmask; // 高一位的
+
+			uint32 v = result.GetRadixBits(j);
+
+
+			uint32 bits_from_lo = v &  lo_himask;
+
+			//高位的bits移到低位的 高bit部分，再和原来低位的搞bit部分组成新的值
+			uint32 new_v = (bits_from_hi << (32-remaind) )  | bits_from_lo;
+
+			result.SetRadixBits(new_v,j);
 		}
 
 	}
