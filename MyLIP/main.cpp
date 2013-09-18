@@ -50,8 +50,15 @@ int main()
 	BigInt iiiiiii("184467440737095516161844674407370955161618446744073709551616184467440737095516161844674407370955161618446744073709551616");
 
 	iiiiiii.Dump();
-	iiiiiii = (iiiiiii>>32);
+	iiiiiii = (iiiiiii<<32);
 	iiiiiii.Dump();
+	
+	
+	int v1 = 2;
+	v1 = v1 >> 1;
+
+	int v2 = -4;
+	v2 = v2 >> 1;
 
 	return 0;
 }

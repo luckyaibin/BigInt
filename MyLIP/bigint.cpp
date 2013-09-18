@@ -1,5 +1,5 @@
 #include "bigint.h"
-
+#include<fstream>
 const  bool BigInt::NeedCarry( uint64 result )
 {
 	return result>CARDINAL;
@@ -132,6 +132,17 @@ void BigInt::Add( const uint32& ui32 )
 
 void BigInt::Dump() const
 {
+	static int idx = 0;
+	idx++;
+
+	std::ofstream fs;
+	fs.open("bits.txt",std::ios_base::binary | std::ios_base::out | std::ios_base::app);
+	std::string index;
+	char buf[100]  = {0};
+	index = itoa(idx,buf,10);
+	index += ":\n";
+
+	fs.write(index.c_str(),index.length());
 	for (int i=0;i<m_bits.size();i++)
 	{
 		printf("%d	十进制	:	%u \n",m_bits.size() - i,m_bits[i]);
@@ -144,8 +155,11 @@ void BigInt::Dump() const
 			s +=c;
 		}
 		printf("%d	二进制:	%s	\n",m_bits.size() - i,s.c_str());
+		fs.write(s.c_str(),s.length());
 	}
 	printf("\n");
+	fs.write("\n\r",1);
+	fs.close();
 }
 
 std::string BigInt::ToString() const

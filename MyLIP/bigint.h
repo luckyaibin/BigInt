@@ -289,7 +289,7 @@ struct BigInt
 
 		//向右移动remaind位，hi_mask是 31 ~ remaind ，lo_mask 是 remaind ~ 0位
 		uint32 hi_mask = 0xffffffff << remaind;
-		uint32 lo_mask = 0xffffffff >>(32 - remaind);
+		uint32 lo_mask = (remaind == 0) ? 0 : 0xffffffff >>(32 - remaind);
 
 
 	
@@ -321,7 +321,7 @@ struct BigInt
 		BigInt result,zero;
 
 		int complete_ints = bits/32;
-		int remaind = bits%32;
+		int remaind = bits%32; //remaind 0~31
 		
 		//32位整数这样移动
 		for(int idx=0;idx<X.Length();idx++)
@@ -330,14 +330,16 @@ struct BigInt
 			result.SetRadixBits(v,idx+complete_ints);
 		}
 		//移动零散的bit:
-		uint32 hi_mask = 0xffffffff<<remaind;
-		uint32 lo_mask = 0xffffffff>>(32-remaind);
+		uint32 hi_mask = (remaind==0) ? 0 : (0xffffffff << (32 - remaind)); //因为remaind为0时，值v左移32位仍然是v
+		uint32 lo_mask = 0xffffffff >> remaind;
 		
-		for(int idx = result.Length()-1;idx>=0;idx--)
+		for(int idx = result.Length();idx>=0;idx--)
 		{
-			uint32 hi_v = result.GetRadixBits(idx+1);
-			uint32 lo_v = result.GetRadixBits(idx);
-			
+			uint32 hi_v = result.GetRadixBits(idx);
+			uint32 lo_v = result.GetRadixBits(idx-1);
+
+			uint32 new_hi_v = ( (hi_v & lo_mask) << remaind ) | ( ( lo_v & hi_mask ) >> (32 - remaind) );
+			result.SetRadixBits(new_hi_v,idx);
 		}
 
 
