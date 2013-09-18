@@ -232,7 +232,6 @@ struct BigInt
 			result.SetRadixBits(v,from_hi_ints - i - 1);
 		}
 
-
 		// 11110000 11110000 11110000 11110000 
 
 		//右移一位
@@ -241,8 +240,6 @@ struct BigInt
 		//向右移动remaind位，hi_mask是 31 ~ remaind ，lo_mask 是 remaind ~ 0位
 		uint32 hi_mask = 0xffffffff << remaind;
 		uint32 lo_mask = 0xffffffff >>(32 - remaind);
-
-
 
 		for (int j=0;j<result.Length();j++)
 		{
