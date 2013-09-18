@@ -212,6 +212,57 @@ struct BigInt
 
 	// 11110000 11110000        00110011 11000011 11110000 00001111  (2)
 
+	BigInt& operator>>(int bits)
+	{
+		BigInt result,zero;
+
+		if (bits>=this->.Length()*4*8)
+		{
+			return zero;
+		}
+
+		int complete_ints = bits/32;
+		int remaind = bits%32;
+
+		int from_hi_ints = this->Length() - complete_ints;
+
+		for (int i=0;i<from_hi_ints;i++)
+		{
+			uint32 v = this->GetRadixBits(this->Length() - i - 1);
+			result.SetRadixBits(v,from_hi_ints - i - 1);
+		}
+
+
+		// 11110000 11110000 11110000 11110000 
+
+		//右移一位
+		// 01111000 01111000 01111000 01111000
+
+		//向右移动remaind位，hi_mask是 31 ~ remaind ，lo_mask 是 remaind ~ 0位
+		uint32 hi_mask = 0xffffffff << remaind;
+		uint32 lo_mask = 0xffffffff >>(32 - remaind);
+
+
+
+		for (int j=0;j<result.Length();j++)
+		{
+			uint32 hi_v=result.GetRadixBits(j+1);
+
+			uint32 bits_from_hi = hi_v & lo_mask; // 高一位的
+
+			uint32 v = result.GetRadixBits(j);
+
+
+			uint32 bits_from_lo = v &  hi_mask;
+
+			//高位的bits移到低位的 高bit部分，再和原来低位的搞bit部分组成新的值
+			uint32 new_v = (bits_from_hi << (32-remaind) )  | (bits_from_lo>>remaind);
+
+			result.SetRadixBits(new_v,j);
+		}
+		* this =  result;
+		return *this;
+	}
 	friend BigInt operator>>(const BigInt& X,int bits)
 	{
 		BigInt result,zero;
