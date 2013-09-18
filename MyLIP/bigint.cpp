@@ -134,8 +134,8 @@ void BigInt::Dump() const
 {
 	for (int i=0;i<m_bits.size();i++)
 	{
-		printf("%d	十进制	:	%u \n",i,m_bits[i]);
-		printf("%d	十六进制:	0x%x \n",i,m_bits[i]);
+		printf("%d	十进制	:	%u \n",m_bits.size() - i,m_bits[i]);
+		printf("%d	十六进制:	0x%x \n",m_bits.size() - i,m_bits[i]);
 		std::string s;
 		for (int j=0;j<32;j++)
 		{
@@ -143,7 +143,7 @@ void BigInt::Dump() const
 			char c = v + '0';
 			s +=c;
 		}
-		printf("%d	二进制:	%s	\n",i,s.c_str());
+		printf("%d	二进制:	%s	\n",m_bits.size() - i,s.c_str());
 	}
 	printf("\n");
 }
