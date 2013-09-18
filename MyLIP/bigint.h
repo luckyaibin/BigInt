@@ -281,7 +281,8 @@ struct BigInt
 			result.SetRadixBits(v,from_hi_ints - i - 1);
 		}
 		
-		
+		//这里可以优化掉，当remaind	> 0 才进行下面的操作，也就不存在int移动32bit之后期待为0，但是值不变的现象
+
 		// 11110000 11110000 11110000 11110000 
 		
 		//右移一位
@@ -292,7 +293,7 @@ struct BigInt
 		uint32 lo_mask = (remaind == 0) ? 0 : 0xffffffff >>(32 - remaind);
 
 
-	
+		
 		for (int j=0;j<result.Length();j++)
 		{
 			uint32 hi_v=result.GetRadixBits(j+1);
