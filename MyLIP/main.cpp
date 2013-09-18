@@ -38,6 +38,55 @@ int main__()
 	return 0;
 }
 
+//获得最高位不为0的bit的序数: 63 ~ 0
+uint32 get_non_zero_bit_idx(uint64 v)
+{
+	for (int idx=63;idx>=0;idx--)
+	{
+		if ( (v>>idx) & 1)
+		{
+			return idx;
+		}
+	}
+	return -1;
+}
+
+//v : 01110000 11110000 00001111 11110000
+//d :          00001111 11110000 11110000 
+/*
+ 110
+   1
+-----
+ 110
+*/
+//v 被除数 d 除数 q 商 r 余数
+uint64  binary_div(uint64 a,uint64 b,uint64 &q,uint64&r)
+{
+	int na = get_non_zero_bit_idx(a);
+	int nb;
+	uint64 i = na, c = 0;
+	do 
+	{
+		na = get_non_zero_bit_idx(a);
+		nb = get_non_zero_bit_idx(b);
+		int dist = na - nb;
+		i = na;
+
+		c = c <<1;
+
+		if ( a >=  (b<<dist))
+		{
+			c = c + 1;
+			a = a - ( b << dist );
+
+		}
+	} while (i>=0);
+	printf("%d",a);
+	q = c;
+	r = a;
+	return c;
+}
+
 int main()
 {
 	
@@ -53,6 +102,15 @@ int main()
 	iiiiiii = (iiiiiii<<32);
 	iiiiiii.Dump();
 	
+
+	uint64 u64 = 1;
+	u64 = u64 << 33;
+
+	uint32 u32 = 1;
+	u32 = u32 << 33;
+
+	uint64 q,r;
+	binary_div(0x2,0x1,q,r);
 
 	return 0;
 }
