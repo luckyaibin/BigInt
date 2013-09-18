@@ -216,9 +216,10 @@ struct BigInt
 	{
 		BigInt result,zero;
 
-		if (bits>=this->.Length()*4*8)
+		if (bits>=this->Length()*4*8)
 		{
-			return zero;
+			* this =  zero;
+			return *this;
 		}
 
 		int complete_ints = bits/32;
@@ -312,4 +313,34 @@ struct BigInt
 
 	}
 
+	// 11111111000000001111111100000000 11110000
+	//左移一位后:
+	// 11111110000000011111111000000001 11100000
+	friend BigInt operator<<(const BigInt& X,int bits)
+	{
+		BigInt result,zero;
+
+		int complete_ints = bits/32;
+		int remaind = bits%32;
+		
+		//32位整数这样移动
+		for(int idx=0;idx<X.Length();idx++)
+		{
+			uint32 v = X.GetRadixBits(idx);
+			result.SetRadixBits(v,idx+complete_ints);
+		}
+		//移动零散的bit:
+		uint32 hi_mask = 0xffffffff<<remaind;
+		uint32 lo_mask = 0xffffffff>>(32-remaind);
+		
+		for(int idx = result.Length()-1;idx>=0;idx--)
+		{
+			uint32 hi_v = result.GetRadixBits(idx+1);
+			uint32 lo_v = result.GetRadixBits(idx);
+			
+		}
+
+
+		return result;
+	}
 };
