@@ -53,12 +53,6 @@ int main()
 	iiiiiii = (iiiiiii<<32);
 	iiiiiii.Dump();
 	
-	
-	int v1 = 2;
-	v1 = v1 >> 1;
-
-	int v2 = -4;
-	v2 = v2 >> 1;
 
 	return 0;
 }
