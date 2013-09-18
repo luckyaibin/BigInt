@@ -35,8 +35,18 @@ struct BigInt
 		FromString(*this,intstr);
 	}
 	
+	BigInt( const BigInt& other)
+	{
+		m_bits = other.m_bits;
+		m_Sign = other.m_Sign;
+	}
 
-
+	BigInt& operator=(const BigInt& other)
+	{
+		this->m_bits = other.m_bits;
+		this->m_Sign = other.m_Sign;
+		return *this;
+	}
 	
 	std::string ToString() const;
 
@@ -47,7 +57,7 @@ struct BigInt
 	const static bool NeedCarry(uint64 result);
 	
 	int Length() const;
-	int Reset()
+	void Reset()
 	{
 		m_bits.clear();
 		m_bits.push_back(0);
@@ -198,11 +208,11 @@ struct BigInt
 
 
 
-	BigInt operator+(const BigInt& X,const BigInt& Y);
+	friend BigInt operator+(const BigInt& X,const BigInt& Y);
 
 	// 11110000 11110000        00110011 11000011 11110000 00001111  (2)
 
-	BigInt operator>>(const BigInt& X,int bits)
+	friend BigInt operator>>(const BigInt& X,int bits)
 	{
 		BigInt result,zero;
 
@@ -214,10 +224,12 @@ struct BigInt
 		int complete_ints = bits/32;
 		int remaind = bits%32;
 
-		for (int i=0;i<complete_ints;i++)
+		int from_hi_ints = X.Length() - complete_ints;
+
+		for (int i=0;i<from_hi_ints;i++)
 		{
-			uint32 v = X.GetRadixBits(i);
-			result.SetRadixBits(v,i);
+			uint32 v = X.GetRadixBits(X.Length() - i - 1);
+			result.SetRadixBits(v,from_hi_ints - i - 1);
 		}
 		
 		
@@ -226,29 +238,29 @@ struct BigInt
 		//右移一位
 		// 01111000 01111000 01111000 01111000
 
-		uint32 hi_himask = 0xffffffff << remaind ;
-		uint32 hi_lowmask = 0xffffffff >> (32-remaind);
+		//向右移动remaind位，hi_mask是 31 ~ remaind ，lo_mask 是 remaind ~ 0位
+		uint32 hi_mask = 0xffffffff << remaind;
+		uint32 lo_mask = 0xffffffff >>(32 - remaind);
 
-		uint32 lo_himask = 0xffffffff << (32-remaind) ;
-		uint32 lo_lomask = 0xffffffff >> remaind;
 
 	
 		for (int j=0;j<result.Length();j++)
 		{
 			uint32 hi_v=result.GetRadixBits(j+1);
 			
-			uint32 bits_from_hi = hi_v & hi_lowmask; // 高一位的
+			uint32 bits_from_hi = hi_v & lo_mask; // 高一位的
 
 			uint32 v = result.GetRadixBits(j);
 
 
-			uint32 bits_from_lo = v &  lo_himask;
+			uint32 bits_from_lo = v &  hi_mask;
 
 			//高位的bits移到低位的 高bit部分，再和原来低位的搞bit部分组成新的值
-			uint32 new_v = (bits_from_hi << (32-remaind) )  | bits_from_lo;
+			uint32 new_v = (bits_from_hi << (32-remaind) )  | (bits_from_lo>>remaind);
 
 			result.SetRadixBits(new_v,j);
 		}
+		return result;
 
 	}
 

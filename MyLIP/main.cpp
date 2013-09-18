@@ -1,7 +1,7 @@
 #include "bigint.h"
 
 
-int main()
+int main__()
 {
 	// | 0000 0001 | ffff ffff | 
 	//uint64 i = 0x1ffffffff;		//8589934591;
@@ -38,27 +38,9 @@ int main()
 	return 0;
 }
 
-int main__()
+int main()
 {
-	std::cout<<"--------\n";
-	char c;
-	std::cin>>c;
-	//BigInt i("123");
 	
-	std::string str;
-
-	//Ä£2È¡Óà
-	uint64 i = 101212383748;
-
-	do
-	{
-		unsigned int left = ((uint64)i) % 2;
-		char c = '0' + left;
-		str = c + str;
-		i = i / 2;
-	}while (i);
-	std::cout<<str;
-
 
 	//BigInt ii("4294967295");
 	//BigInt iii("4294967296");
@@ -67,11 +49,9 @@ int main__()
 	BigInt iiiiii("18446744073709551616");
 	BigInt iiiiiii("184467440737095516161844674407370955161618446744073709551616184467440737095516161844674407370955161618446744073709551616");
 
-
-	std::string quotient_str;
-	quotient_str = iiiiii.ToString();
-
-
+	iiiiiii.Dump();
+	iiiiiii = (iiiiiii>>32);
+	iiiiiii.Dump();
 
 	return 0;
 }

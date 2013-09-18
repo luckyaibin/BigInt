@@ -19,7 +19,7 @@ uint32 BigInt::GetRadixBits( uint32 pos ) const
 
 void BigInt::SetRadixBits( uint32 v,uint32 pos )
 {
-	assert(pos);
+	//assert(pos);
 	while (pos>=m_bits.size())
 	{
 		//m_bits.push_front(0);
@@ -34,7 +34,7 @@ void BigInt::AddRadixBits( uint32 val,uint32 pos )
 	{
 		return;
 	}
-	assert(pos);
+	//assert(pos);
 	while (pos>=m_bits.size())
 	{
 		//m_bits.push_front(0);
