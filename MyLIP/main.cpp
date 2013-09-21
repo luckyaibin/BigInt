@@ -62,26 +62,29 @@ uint32 get_non_zero_bit_idx(uint64 v)
 //v 被除数 d 除数 q 商 r 余数
 uint64  binary_div(uint64 a,uint64 b,uint64 &q,uint64&r)
 {
-	int na = get_non_zero_bit_idx(a);
-	int nb;
-	uint64 i = na, c = 0;
-	do 
-	{
+	int i = 0;
+	int na = 0;
+	int nb = 0;
+	uint64 c = 0;
+	i = get_non_zero_bit_idx(a);
+	nb = get_non_zero_bit_idx(b);
+	while (i>=0)
+	{	
+		c = c << 1;
+		
 		na = get_non_zero_bit_idx(a);
-		nb = get_non_zero_bit_idx(b);
-		int dist = na - nb;
-		i = na;
-
-		c = c <<1;
-
-		if ( a >=  (b<<dist))
+		int diff = na - nb;
+		if (diff<0)
+		{
+			diff = 0;
+		}
+		if (a >= (b<<diff) )
 		{
 			c = c + 1;
-			a = a - ( b << dist );
-
+			a = a - (b<<diff);
 		}
-	} while (i>=0);
-	printf("%d",a);
+		i--;
+	} ;
 	q = c;
 	r = a;
 	return c;
@@ -110,7 +113,14 @@ int main()
 	u32 = u32 << 33;
 
 	uint64 q,r;
-	binary_div(0x2,0x1,q,r);
+
+	for ( int i=0;i<=100;i++)
+	{
+		int v = rand()%1000 + 1;
+		int d = rand() % 100 + 1;
+		std::cout<<v<<" "<<d<<" "<< (v / d) <<" : "<< binary_div(v,d,q,r)<<std::endl;
+	}
+	binary_div(310,17,q,r);
 
 	return 0;
 }
