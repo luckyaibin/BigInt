@@ -147,14 +147,11 @@ uint64  binary_div(int64 a,int64 b,uint64 &q,uint64&r)
 	na = get_non_zero_bit_idx(a);
 	nb = get_non_zero_bit_idx(b);
 
-	while (a>b)
+	while (a>=b) // so that diff >= 0
 	{
 		na = get_non_zero_bit_idx(a);
 		int diff = na - nb;
-		if(a<=0 || diff < 0)
-		{
-			break;
-		}
+		
 		while(diff>0 && a<(b<<diff))
 			diff--;
 		if (a >= (b<<diff) )
