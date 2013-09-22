@@ -294,7 +294,7 @@ struct BigInt
 
 
 		
-		for (int j=0;j<result.Length();j++)
+		for (int j=0;remaind && j<result.Length();j++)
 		{
 			uint32 hi_v=result.GetRadixBits(j+1);
 			
@@ -334,7 +334,7 @@ struct BigInt
 		uint32 hi_mask = (remaind==0) ? 0 : (0xffffffff << (32 - remaind)); //因为remaind为0时，值v左移32位仍然是v
 		uint32 lo_mask = 0xffffffff >> remaind;
 		
-		for(int idx = result.Length();idx>=0;idx--)
+		for(int idx = result.Length();remaind && idx>=0;idx--)
 		{
 			uint32 hi_v = result.GetRadixBits(idx);
 			uint32 lo_v = result.GetRadixBits(idx-1);
