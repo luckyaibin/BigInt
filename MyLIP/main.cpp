@@ -152,7 +152,7 @@ uint64  binary_div(int64 a,int64 b,uint64 &q,uint64&r)
 		na = get_non_zero_bit_idx(a);
 		int diff = na - nb;
 		
-		while(diff>0 && a<(b<<diff))
+		while(diff>0 && a<(b<<diff)) //so that a >= b<<diff
 			diff--;
 		if (a >= (b<<diff) )
 		{
@@ -193,10 +193,12 @@ int main()
 	{
 		int v = rand()%1000 + 1;
 		int d = rand() % 100 + 1;
-		std::cout<<v<<" "<<d<<" "<< (v / d) <<" : "<< binary_div(v,d,q,r)<<std::endl;
+		binary_div(v,d,q,r);
+		std::cout<<v<<" "<<d<<" "<< (v / d) <<" : "<< q <<" "<<r<< " d * q + r:"<<d*q + r <<std::endl;
 	}
 	//binary_div(0xe8e,0x12,q,r);
 	//binary_div(81,1,q,r);
-	binary_div(1894780912,1044720,q,r);
+	//binary_div(1894780912,1044720,q,r);
+	binary_div(38,60,q,r);
 	return 0;
 }
