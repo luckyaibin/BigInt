@@ -1,5 +1,6 @@
 #include "bigint.h"
 #include<fstream>
+#include <stdarg.h>
 const  bool BigInt::NeedCarry( uint64 result )
 {
 	return result>CARDINAL;
@@ -130,7 +131,7 @@ void BigInt::Add( const uint32& ui32 )
 	}
 }
 
-void BigInt::Dump() const
+void BigInt::Dump(const char *fmt,...) const
 {
 	static int idx = 0;
 	idx++;
@@ -140,6 +141,17 @@ void BigInt::Dump() const
 	std::string index;
 	char buf[100]  = {0};
 	index = itoa(idx,buf,10);
+	
+	char out[1024]={0};
+	 
+	va_list ap;
+	va_start(ap, fmt);
+
+	vsnprintf(out, 1024, fmt, ap);
+
+	va_end(ap);
+	
+	index +=out;
 	index += ":\n";
 
 	fs.write(index.c_str(),index.length());
@@ -243,4 +255,43 @@ BigInt operator+(const BigInt& X,const BigInt& Y)
 		Z.AddRadixBits(carry,i+1);
 	}
 	return Z;
+}
+
+BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
+{
+	BigInt One("1");
+	BigInt Result("0");
+	BigInt a = X;
+	BigInt b = Y;
+
+	int32 na = 0;
+	int32 nb = 0;
+
+	na = a.GetNonZeroBitIdx();
+	nb = b.GetNonZeroBitIdx();
+
+	while(a>=b)
+	{
+		na = a.GetNonZeroBitIdx();
+		int diff = na - nb;
+		//a.Dump("a初始值:");
+		//b.Dump("b初始值,猜测偏移diff=%d:",diff);
+
+		while (diff>0 && a < (b<<diff))
+			diff--;
+
+		if ( a >= ( b<<diff ) )
+		{
+			//( b<<diff ).Dump("b移动后，实际偏移diff=%d",diff);
+			Result = Result + ( One <<diff );
+			//Result.Dump("结果：");
+		}
+		
+		a = a - ( b<<diff );
+		//a.Dump("之后a:");
+	}
+
+	Q = Result;
+	R = a;
+	return Result;
 }

@@ -8,6 +8,9 @@ typedef int int32;
 typedef unsigned long long uint64;
 typedef long long int64;
 
+struct BigInt;
+//前向声明
+BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R);
 
 //将大数表示为n^32 进制（即0x1 0000 0000）的数组
 
@@ -85,7 +88,7 @@ struct BigInt
 			idx1--;
 		}
 
-		while( !(v2 = this->GetRadixBits(idx2)) && idx2>0 )
+		while( !(v2 = N.GetRadixBits(idx2)) && idx2>0 )
 		{ 
 			idx2--;
 		}
@@ -141,6 +144,16 @@ struct BigInt
 		return v1.Compare(v2) == 1;
 	}
 
+	friend int operator <= (const BigInt& v1,const BigInt& v2)
+	{
+		return !(v1>v2);
+	}
+
+	friend int operator >= (const BigInt& v1,const BigInt& v2)
+	{
+		return !(v1<v2);
+	}
+
 	//乘以一个小整数
 	// a b c d
 	//*      v
@@ -170,7 +183,7 @@ struct BigInt
 		} while (++index<m_bits.size());
 		return remainder;
 	}
-	void Dump() const;
+	void Dump(const char * msg="",...) const;
 	//获取pos位的uint32的数
 	uint32 GetRadixBits(uint32 pos) const ;
 
@@ -240,6 +253,10 @@ struct BigInt
 		return R;
 	}
 
+	friend BigInt operator-(const BigInt&N1,const BigInt& N2)
+	{
+		return Minus(N1,N2);
+	}
 
 	/*
 							a		b		c   :index1 0~2
@@ -427,12 +444,5 @@ struct BigInt
 	
 	//大数除法：
 	//返回两个大数除法的商，同时Q置为商，R为余数
-	friend BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R)
-	{
-		BigInt One("1");
-		BigInt Result("0");
-
-
-		return Result;
-	}
+	friend BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R);
 };
