@@ -203,6 +203,29 @@ std::string BigInt::ToString() const
 	}
 	return numbers;
 }
+
+uint32 BigInt::GetNonZeroBitIdx() /*get_non_zero_bit_idx */
+{
+	int hightest_idx = -1;
+	int len = Length();
+	for (int i=len-1;i>=0;i--)
+	{
+		uint32 v = GetRadixBits(i);
+		if (v)
+		{
+			for (int idx=31;idx>=0;idx--)
+			{
+				if ( (v>>idx) & 1)
+				{
+					hightest_idx = idx + 32*i;
+					goto RETURN;
+				}
+			}
+		}
+	}
+RETURN: 
+	return hightest_idx;
+}
 BigInt operator+(const BigInt& X,const BigInt& Y)
 {
 	BigInt Z;

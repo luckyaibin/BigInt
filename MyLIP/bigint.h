@@ -64,27 +64,81 @@ struct BigInt
 	}
 	
 	//获得最高为1的比特的索引 N N-1 ... 3 2 1 0
-	uint32 GetNonZeroBitIdx() //get_non_zero_bit_idx
+	uint32 GetNonZeroBitIdx(); //get_non_zero_bit_idx;
+
+	//比较大小 
+	/*
+		00000000 00001111 11110000 0000111
+		         00000001 00001110 0011001
+	*/
+	int32 Compare(const BigInt & N) const
 	{
-		int hightest_idx = -1;
-		int len = Length();
-		for (int i=len-1;i>=0;i--)
-		{
-			uint32 v = GetRadixBits(i);
-			if (v)
+		int32 idx1 = this->Length() - 1;
+		int32 idx2 = N.Length() - 1;
+
+		uint32 v1 = 0;
+		uint32 v2 = 0;
+		
+		//找到第一个不为0 的高位的值和索引
+		while( !(v1=this->GetRadixBits(idx1)) && idx1>0)
+		{ 
+			idx1--;
+		}
+
+		while( !(v2 = this->GetRadixBits(idx2)) && idx2>0 )
+		{ 
+			idx2--;
+		}
+		int32 result = 0;
+		while (idx1>=0 || idx2 >=0)
+		{	
+			if (idx1>idx2)
 			{
-				for (int idx=31;idx>=0;idx--)
+				result = 1;
+				break;
+			}
+			else if (idx2>idx1)
+			{
+				result = -1;
+				break;
+			}
+			else  //idx1 == idx2
+			{
+				if (v1>v2)
 				{
-					if ( (v>>idx) & 1)
-					{
-						hightest_idx = idx + 32*i;
-						goto RETURN;
-					}
+					result = 1;
+					break;
+				}
+				else if (v2>v1)
+				{
+					result = -1;
+					break;
+				}
+				else // idx1 == idx2 并且 v1 == v2，要判断下一位
+				{
+					idx1--;
+					idx2--;
+					v1 = this->GetRadixBits(idx1);
+					v2 = N.GetRadixBits(idx2);
 				}
 			}
 		}
-RETURN: 
-		return hightest_idx;
+		return result;
+	}
+
+	friend int operator < (const BigInt& v1,const BigInt& v2)
+	{
+		return v1.Compare(v2) == -1;
+	}
+
+	friend int operator == (const BigInt& v1,const BigInt& v2)
+	{
+		return v1.Compare(v2) == 0;
+	}
+
+	friend int operator > (const BigInt& v1,const BigInt& v2)
+	{
+		return v1.Compare(v2) == 1;
 	}
 
 	//乘以一个小整数
@@ -376,6 +430,9 @@ RETURN:
 	friend BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R)
 	{
 		BigInt One("1");
+		BigInt Result("0");
 
+
+		return Result;
 	}
 };
