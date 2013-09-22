@@ -62,6 +62,30 @@ struct BigInt
 		m_bits.clear();
 		m_bits.push_back(0);
 	}
+	
+	//获得最高为1的比特的索引 N N-1 ... 3 2 1 0
+	uint32 GetNonZeroBitIdx() //get_non_zero_bit_idx
+	{
+		int hightest_idx = -1;
+		int len = Length();
+		for (int i=len-1;i>=0;i--)
+		{
+			uint32 v = GetRadixBits(i);
+			if (v)
+			{
+				for (int idx=31;idx>=0;idx--)
+				{
+					if ( (v>>idx) & 1)
+					{
+						hightest_idx = idx + 32*i;
+						goto RETURN;
+					}
+				}
+			}
+		}
+RETURN: 
+		return hightest_idx;
+	}
 
 	//乘以一个小整数
 	// a b c d
@@ -345,5 +369,13 @@ struct BigInt
 
 
 		return result;
+	}
+	
+	//大数除法：
+	//返回两个大数除法的商，同时Q置为商，R为余数
+	friend BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R)
+	{
+		BigInt One("1");
+
 	}
 };

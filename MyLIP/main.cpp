@@ -168,13 +168,25 @@ uint64  binary_div(int64 a,int64 b,uint64 &q,uint64&r)
 int main()
 {
 	
-
+	int32 idx = -1;
 	//BigInt ii("4294967295");
 	//BigInt iii("4294967296");
 	BigInt   iiii("18446744065119617025");
+	iiii.Dump();
+	idx = iiii.GetNonZeroBitIdx();
+	printf("%d \n",idx);
 	BigInt  iiiii("18446744073709551615");
+	iiiii.Dump();
+	idx = iiiii.GetNonZeroBitIdx();
+	printf("%d \n",idx);
 	BigInt iiiiii("18446744073709551616");
+	iiiiii.Dump();
+	idx = iiiiii.GetNonZeroBitIdx();
+	printf("%d \n",idx);
 	BigInt iiiiiii("184467440737095516161844674407370955161618446744073709551616184467440737095516161844674407370955161618446744073709551616");
+	iiiiiii.Dump();
+	idx = iiiiiii.GetNonZeroBitIdx();
+	printf("%d \n",idx);
 
 	iiiiiii.Dump();
 	iiiiiii = (iiiiiii<<32);
