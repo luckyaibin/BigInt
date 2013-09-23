@@ -22,11 +22,13 @@ uint32 BigInt::GetRadixBits( uint32 pos ) const
 void BigInt::SetRadixBits( uint32 v,uint32 pos )
 {
 	//assert(pos);
-	while (pos>=m_bits.size())
+	if (pos>=m_bits.size())
 	{
 		//m_bits.push_front(0);
 		//m_bits.insert(m_bits.begin(),0);
-		m_bits.push_back(0);
+		//m_bits.push_back(0);
+		
+		m_bits.resize(pos+1,0);
 	}
 	m_bits[pos] = v;
 }
