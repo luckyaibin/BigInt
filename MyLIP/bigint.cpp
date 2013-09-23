@@ -335,6 +335,19 @@ BigInt GCD(const BigInt& X,const BigInt& Y)
 	}
 	return a;		
 }
+/*
+
+	gcd(a,b) = gcd(b,a%b); // 定理
+
+	设：
+    a*x1 + b*y1 = gcd(a,b)
+    
+	//另 a= b, b = a % b; 下一次递归
+	b * x2 + ( a % b ) * y2 = gcd(b,a%b);
+	
+
+
+*/
 
 BigInt ExEuc(BigInt a,BigInt b,BigInt& x,BigInt& y)
 {
