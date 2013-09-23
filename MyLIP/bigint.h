@@ -11,6 +11,7 @@ typedef long long int64;
 struct BigInt;
 //前向声明
 BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R);
+BigInt GCD(const BigInt& X,const BigInt& Y);
 
 //将大数表示为n^32 进制（即0x1 0000 0000）的数组
 
@@ -298,9 +299,15 @@ struct BigInt
 	};
 
 
+	friend BigInt Mod(const BigInt& X,const BigInt& M)
+	{
+		BigInt q;//商
+		BigInt r;//余
+		BigDiv(X,M,q,r);
+		return r;
+	}
 
-
-
+	
 
 
 	friend BigInt operator+(const BigInt& X,const BigInt& Y);
@@ -445,4 +452,8 @@ struct BigInt
 	//大数除法：
 	//返回两个大数除法的商，同时Q置为商，R为余数
 	friend BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R);
+
+	//欧几里德算法，求X和Y的最大公约数
+	friend BigInt GCD(const BigInt& X,const BigInt& Y);
+ 
 };

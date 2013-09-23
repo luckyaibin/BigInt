@@ -40,11 +40,12 @@ void BigInt::AddRadixBits( uint32 val,uint32 pos )
 		return;
 	}
 	//assert(pos);
-	while (pos>=m_bits.size())
+	if (pos>=m_bits.size())
 	{
 		//m_bits.push_front(0);
 		//m_bits.insert(m_bits.begin(),0);
-		m_bits.push_back(0);
+		//m_bits.push_back(0);
+		m_bits.resize(pos+1,0);
 	}
 	uint32 carry = 0;
 	uint64 v = m_bits[pos];
@@ -302,4 +303,35 @@ BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
 	Q = Result;
 	R = a;
 	return Result;
+}
+
+//欧几里德算法，求X和Y的最大公约数
+BigInt Euci(const BigInt& X,const BigInt& Y)
+{
+	BigInt Zero("0");
+	BigInt a;
+	BigInt b;
+	BigInt r;
+	if (X>Y)
+	{
+		a = X;
+		b = Y;
+	}
+	else if (X<Y)
+	{
+		a = Y;
+		b = X;
+	}
+	else //相等，直接返回
+	{
+		return X;
+	}
+
+	while (!( b == Zero) ) //a=41606343 b=40144455
+	{
+		BigInt tmp = b;
+		b = Mod(a,b);
+		a = tmp;
+	}
+	return a;		
 }
