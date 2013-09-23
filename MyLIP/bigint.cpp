@@ -10,12 +10,13 @@ int BigInt::Length() const
 {
 	return m_bits.size();
 }
-
+//下标是 n n-1 n-2 ... 2 1 0 对应uint32数组
+//由于uint32 数组 是 0 1 2 ... n-1 n，并且为了使用vector时的效率（在头部插入）
 uint32 BigInt::GetRadixBits( uint32 pos ) const
 {
 	if(pos<0 || pos >=m_bits.size() )
 		return 0;
-	return m_bits[m_bits.size()-1-pos];
+	return m_bits[pos];
 }
 
 void BigInt::SetRadixBits( uint32 v,uint32 pos )
@@ -24,9 +25,10 @@ void BigInt::SetRadixBits( uint32 v,uint32 pos )
 	while (pos>=m_bits.size())
 	{
 		//m_bits.push_front(0);
-		m_bits.insert(m_bits.begin(),0);
+		//m_bits.insert(m_bits.begin(),0);
+		m_bits.push_back(0);
 	}
-	m_bits[m_bits.size() - 1 - pos] = v;
+	m_bits[pos] = v;
 }
 
 void BigInt::AddRadixBits( uint32 val,uint32 pos )
@@ -39,15 +41,16 @@ void BigInt::AddRadixBits( uint32 val,uint32 pos )
 	while (pos>=m_bits.size())
 	{
 		//m_bits.push_front(0);
-		m_bits.insert(m_bits.begin(),0);
+		//m_bits.insert(m_bits.begin(),0);
+		m_bits.push_back(0);
 	}
 	uint32 carry = 0;
-	uint64 v = m_bits[m_bits.size() - 1 - pos];
+	uint64 v = m_bits[pos];
 	v = v + val;
 	
 	carry = v / RADIX;
 	v = v % RADIX;
-	m_bits[m_bits.size() - 1 - pos] = v;
+	m_bits[pos] = v;
 
 	//把进位加上去
 	AddRadixBits(carry,pos+1);
@@ -61,7 +64,7 @@ void BigInt::MinusRadixBits(uint32 val,uint32 pos)
 		return;
 	}
 
-	uint64 v = m_bits[m_bits.size() - 1 - pos];
+	uint64 v = m_bits[pos];
 
 	//不够减
 	if(v<val)
@@ -71,7 +74,7 @@ void BigInt::MinusRadixBits(uint32 val,uint32 pos)
 	}
 	v = v - val;
 
-	m_bits[m_bits.size() - 1 - pos] = v;
+	m_bits[pos] = v;
 }
 
 void BigInt::Mul( const uint32& ui32 ) 
@@ -79,22 +82,23 @@ void BigInt::Mul( const uint32& ui32 )
 	uint64 carry = 0;
 	for (uint32 i=0;i<m_bits.size();i++)
 	{
-		uint64 v = m_bits[m_bits.size() - 1 - i];	
+		uint64 v = m_bits[i];	
 
 		v *= ui32;
 		v += carry;
 
 		carry = v / RADIX;
 		v = v % RADIX;
-		m_bits[m_bits.size() - 1 - i] = (uint32)v;
+		m_bits[i] = (uint32)v;
 	}
 
 	//最高位有进位
 	if (carry > 0)
 	{
 		//m_bits.push_front(0);
-		m_bits.insert(m_bits.begin(),0);
-		m_bits[0] = (uint32)carry;
+		//m_bits.insert(m_bits.begin(),0);
+		m_bits.push_back(0);
+		m_bits[m_bits.size()-1] = (uint32)carry;
 	}
 }
 
@@ -102,13 +106,13 @@ void BigInt::Add( const uint32& ui32 )
 {
 	uint64 carry = 0;
 	//加到最低位
-	uint64 v = m_bits[m_bits.size()-1];
+	uint64 v = m_bits[0];
 	v = v + ui32;
 
 	carry = v / RADIX;
 	v = v % RADIX;
 
-	m_bits[m_bits.size()-1] = (uint32)v;
+	m_bits[0] = (uint32)v;
 
 	int pos = 1;
 	//处理除最低位以外的进位
@@ -117,16 +121,17 @@ void BigInt::Add( const uint32& ui32 )
 		if ((int)m_bits.size()-1-pos<0)
 		{
 			//m_bits.push_front(0);
-			m_bits.insert(m_bits.begin(),0);
+			//m_bits.insert(m_bits.begin(),0);
+			m_bits.push_back(0);
 		}
-		uint64 v = m_bits[m_bits.size()-1-pos];
+		uint64 v = m_bits[pos];
 
 		v += carry;
 
 		carry = v / RADIX;
 		v = v % RADIX;
 
-		m_bits[m_bits.size()-1-pos] = (uint32)v;
+		m_bits[pos] = (uint32)v;
 		++pos;
 	}
 }
@@ -157,12 +162,12 @@ void BigInt::Dump(const char *fmt,...) const
 	fs.write(index.c_str(),index.length());
 	for (int i=0;i<m_bits.size();i++)
 	{
-		printf("%d	十进制	:	%u \n",m_bits.size() - i,m_bits[i]);
-		printf("%d	十六进制:	0x%x \n",m_bits.size() - i,m_bits[i]);
+		printf("%d	十进制	:	%u \n", i,m_bits[i]);
+		printf("%d	十六进制:	0x%x \n",i,m_bits[i]);
 		std::string s;
 		for (int j=0;j<32;j++)
 		{
-			int v = (m_bits[i]>>(31-j))&1;
+			int v = (m_bits[m_bits.size() - 1 - i]>>(31-j))&1;
 			char c = v + '0';
 			s +=c;
 		}

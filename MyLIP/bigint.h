@@ -25,7 +25,8 @@ struct BigInt
 	{
 		if (m_bits.size() == 0)
 		{
-			m_bits.insert(m_bits.begin(),0);
+			//m_bits.insert(m_bits.begin(),0);
+			m_bits.push_back(0);
 		}
 	}
 	BigInt(const uint32& ui32)
@@ -169,7 +170,7 @@ struct BigInt
 	//
 	uint32 Mod(const uint32& ui32)
 	{
-		uint32 index = 0;
+		uint32 index = m_bits.size() - 1;
 		
 		uint64 v = 0;
 		uint64 quotient = 0;
@@ -180,7 +181,7 @@ struct BigInt
 			
 			quotient = v / ui32;
 			remainder = v % ui32;
-		} while (++index<m_bits.size());
+		} while (--index>=0);
 		return remainder;
 	}
 	void Dump(const char * msg="",...) const;
