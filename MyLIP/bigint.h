@@ -12,6 +12,7 @@ struct BigInt;
 //前向声明
 BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R);
 BigInt GCD(const BigInt& X,const BigInt& Y);
+BigInt ExEuc(const BigInt&a,const BigInt& b,BigInt& x,BigInt& y);
 
 //将大数表示为n^32 进制（即0x1 0000 0000）的数组
 
@@ -156,6 +157,11 @@ struct BigInt
 		return !(v1<v2);
 	}
 
+	friend int operator !=(const BigInt& v1,const BigInt& v2)
+	{
+		return !(v1==v2);
+	}
+
 	//乘以一个小整数
 	// a b c d
 	//*      v
@@ -239,7 +245,8 @@ struct BigInt
 		}
 		return R;
 	}
-
+	
+	friend BigInt operator+(const BigInt& X,const BigInt& Y);
 
 	//N1 > N2,那么N1长度大于等于N2长度
 	friend BigInt Minus(const BigInt& N1,const BigInt& N2)
@@ -298,6 +305,11 @@ struct BigInt
 		return R;
 	};
 
+	friend BigInt operator*(const BigInt& N1,const BigInt& N2)
+	{
+		return ::Mul(N1,N2);
+	}
+
 
 	friend BigInt Mod(const BigInt& X,const BigInt& M)
 	{
@@ -307,10 +319,13 @@ struct BigInt
 		return r;
 	}
 
+	friend BigInt operator% (const BigInt&X,const BigInt& Y)
+	{
+		return ::Mod(X,Y);
+	}
+
+
 	
-
-
-	friend BigInt operator+(const BigInt& X,const BigInt& Y);
 
 	// 11110000 11110000        00110011 11000011 11110000 00001111  (2)
 
@@ -452,6 +467,13 @@ struct BigInt
 	//大数除法：
 	//返回两个大数除法的商，同时Q置为商，R为余数
 	friend BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R);
+
+	friend BigInt operator/ (const BigInt& X,const BigInt& Y)
+	{
+		BigInt Q;
+		BigInt R;
+		return BigDiv(X,Y,Q,R);
+	}
 
 	//欧几里德算法，求X和Y的最大公约数
 	friend BigInt GCD(const BigInt& X,const BigInt& Y);

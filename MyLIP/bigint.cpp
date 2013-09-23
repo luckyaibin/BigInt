@@ -335,3 +335,28 @@ BigInt GCD(const BigInt& X,const BigInt& Y)
 	}
 	return a;		
 }
+
+BigInt ExEuc(BigInt a,BigInt b,BigInt& x,BigInt& y)
+{
+	x = BigInt("0");
+	y = BigInt("1");
+	
+	
+	while ( a!= BigInt("0"))
+	{
+		BigInt i = y;
+
+		y = x - y * a/b ;
+		x = i;
+		i = a;
+
+		a = b % a;
+		b = i;
+		if ( x < BigInt("0") )
+		{
+			x = x + b;
+			return x;
+		}
+	}
+
+}
