@@ -306,7 +306,7 @@ BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
 }
 
 //欧几里德算法，求X和Y的最大公约数
-BigInt Euci(const BigInt& X,const BigInt& Y)
+BigInt GCD(const BigInt& X,const BigInt& Y)
 {
 	BigInt Zero("0");
 	BigInt a;

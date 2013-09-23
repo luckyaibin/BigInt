@@ -239,7 +239,7 @@ int main()
 	R.Dump("余数为:");
 
 	BigInt eee;
-	eee = Euci(X,Y);
+	eee = GCD(X,Y);
 	eee.Dump("最大公约数为");
 
 	//测试最大公约数
