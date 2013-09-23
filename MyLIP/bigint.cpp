@@ -269,25 +269,26 @@ BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
 
 	na = a.GetNonZeroBitIdx();
 	nb = b.GetNonZeroBitIdx();
-
+	int loopcnt = 0;
 	while(a>=b)
 	{
 		na = a.GetNonZeroBitIdx();
 		int diff = na - nb;
 		//a.Dump("a初始值:");
 		//b.Dump("b初始值,猜测偏移diff=%d:",diff);
+		BigInt shift_b = b<<diff;
+		while (diff>0 && a < shift_b)
+			diff--,shift_b = b<<diff;
 
-		while (diff>0 && a < (b<<diff))
-			diff--;
-
-		if ( a >= ( b<<diff ) )
+		//if ( a >= shift_b )
 		{
 			//( b<<diff ).Dump("b移动后，实际偏移diff=%d",diff);
 			Result = Result + ( One <<diff );
 			//Result.Dump("结果：");
 		}
 		
-		a = a - ( b<<diff );
+		a = a - shift_b;
+		loopcnt++;
 		//a.Dump("之后a:");
 	}
 

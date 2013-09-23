@@ -275,16 +275,15 @@ struct BigInt
 			uint32 carry = 0;
 
 			uint64 v = 0;
-			uint32 index1 = 0;
-			uint32 index2 = 0;
-			for (;index1<N1.Length();index1++)
+			
+			for (uint32 index1 = 0;index1<N1.Length();index1++)
 			{
-				for (;index2<N2.Length();index2++)
+				for (	uint32 index2 = 0;index2<N2.Length();index2++)
 				{
-					uint32 n1 = N1.GetRadixBits(index1);
-					uint32 n2 = N2.GetRadixBits(index2);
-
-					v = n1*n2 ;
+					uint64 n1 = N1.GetRadixBits(index1);
+					uint64 n2 = N2.GetRadixBits(index2);
+					//注意这里转型操作，否则v里的结果是32位的
+					v = (uint64)n1*(uint64)n2 ;
 					carry = v / RADIX;
 					v = v % RADIX;
 
