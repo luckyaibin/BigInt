@@ -48,7 +48,9 @@ end
 
 
  --]]
-
+ -- http://www.cnblogs.com/zhtxwd/archive/2012/02/09/2344165.html
+ -- http://www.cnblogs.com/frog112111/archive/2012/08/19/2646012.html
+ -- http://www.cnblogs.com/void/archive/2011/04/18/2020357.html
 function ex_euc(a,b)
 
 
