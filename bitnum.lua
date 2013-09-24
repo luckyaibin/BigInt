@@ -44,7 +44,10 @@ end
    y1 = x2 - (a/b)*y2;
 
    当a=b 时，下一个循环时b=0时:
-   a*xn +
+   a*xn + 0 = a;( mod(a,0) === a);
+   (其实最后一次，a就等于1)
+   此时xn = 1
+
 
 
  --]]
@@ -53,11 +56,30 @@ end
  -- http://www.cnblogs.com/void/archive/2011/04/18/2020357.html
 function ex_euc(a,b)
 
+	local x0 = 1;
+	local y0 = 0;
 
-	if b == 0 then
+	local x = x0;
+	local y = y0;
 
+	while b ~= 0 do
+
+		local old_x = x;
+		x = y;
+		y = old_x - ( a/b) * y;
+
+		local old_a;
+		old_a = a;
+		a = b % a;
+		b = old_a;
 
 	end
+
+	if x < 0 then
+		x = x + b;
+	end
+
+	return x,y;
 
 end
 
@@ -66,6 +88,8 @@ print( gcd(100,8));
 
 
 print( 1%1);
+
+print(ex_euc(20,7));
 
 
 
