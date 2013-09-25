@@ -76,6 +76,7 @@ function ex_euc(a,b)
 	end
 
 	if x < 0 then
+		print('x<0',x);
 		x = x + b;
 	end
 
