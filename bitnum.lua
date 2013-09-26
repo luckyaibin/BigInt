@@ -64,6 +64,8 @@ function ex_euc(a,b)
 
 	while b ~= 0 do
 
+		-- x1 = y2;
+		-- y1 = x2 - (a/b)*y2
 		local old_x = x;
 		x = y;
 		y = old_x - ( a/b) * y;
@@ -85,14 +87,40 @@ function ex_euc(a,b)
 end
 
 
-print( gcd(100,8));
+--print( gcd(100,8));
 
 
-print( 1%1);
+--print( 1%1);
 
-print(ex_euc(20,7));
+--print(ex_euc(20,7));
 
 
+
+
+local x,y;
+function euc(a,b)
+
+
+	if b == 0 then -- last recursion
+		x = 1;
+		y = 0;
+		return;
+	end
+
+	local tmp = b;
+	b = a % b;
+	a = tmp;
+
+	euc(a,b);
+	--x1 = y2;
+    --y1 = x2 - (a/b)*y2;
+	local old_x = x;
+	x = y;
+	y = old_x - math.floor( (a/b) )*y;
+
+end
+
+print(euc(100,80),x,y);
 
 
 

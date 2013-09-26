@@ -165,9 +165,30 @@ uint64  binary_div(int64 a,int64 b,uint64 &q,uint64&r)
 	return c;
 }
 
+//http://blog.csdn.net/wangjian8006/article/details/7833228
+int g_x,g_y;
+void euclid(int a,int b)
+{
+	int tmp = b;
+	b = a % b;
+	a = tmp;
+	if(b == 0)
+	{
+		g_x = 1;
+		g_y = 0;
+		return;
+	}
+	
+	euclid(a,b);
+	int old_x = g_x;
+	g_x = g_y;
+	g_y = old_x - (a/b)*g_y;
+}
 int main()
 {
-	
+	euclid(30,42);
+	euclid(11,49);
+	euclid(11,7);
 	int32 idx = -1;
 	//BigInt ii("4294967295");
 	//BigInt iii("4294967296");
