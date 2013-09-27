@@ -14,6 +14,8 @@ BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R);
 BigInt GCD(const BigInt& X,const BigInt& Y);
 BigInt ExEuc(const BigInt&a,const BigInt& b,BigInt& x,BigInt& y);
 
+void ExEuclid( BigInt a,BigInt b,BigInt& x,BigInt&y );
+
 //将大数表示为n^32 进制（即0x1 0000 0000）的数组
 
 // 0xFFFFFFFF == 4294967295
@@ -477,5 +479,7 @@ struct BigInt
 
 	//欧几里德算法，求X和Y的最大公约数
 	friend BigInt GCD(const BigInt& X,const BigInt& Y);
- 
+
+	//扩展欧几里德算法，求模反元素
+	friend void ExEuclid(BigInt a, BigInt b,BigInt& x,BigInt&y); 
 };

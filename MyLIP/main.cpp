@@ -166,9 +166,15 @@ uint64  binary_div(int64 a,int64 b,uint64 &q,uint64&r)
 }
 
 //http://blog.csdn.net/wangjian8006/article/details/7833228
+//http://blog.sbw.so/Article/index/title/%E6%89%A9%E5%B1%95%E6%AC%A7%E5%87%A0%E9%87%8C%E5%BE%B7%E7%AE%97%E6%B3%95%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0.html
+
 int g_x,g_y;
+//euclid算出来的是 a*x + b*y = gcd(a,b)的解
+//对于a 和 b互质的情况，就是a*x + b*y = gcd(a,b) === 1的解
 void euclid(int a,int b)
 {
+	int old_a = a;
+	int old_b = b;
 	int tmp = b;
 	b = a % b;
 	a = tmp;
@@ -176,17 +182,31 @@ void euclid(int a,int b)
 	{
 		g_x = 1;
 		g_y = 0;
+
+		//最后一次递归返回时，顺带把出了赋予初始值之外的
+		//第一层x y之间的递推也计算出来。
+		int tmp = g_x;
+		g_x = g_y;
+		g_y = tmp - (old_a/old_b)*g_y;
 		return;
 	}
 	
 	euclid(a,b);
+	
+	//计算第一次
 	int old_x = g_x;
 	g_x = g_y;
-	g_y = old_x - (a/b)*g_y;
+	g_y = old_x - (old_a/old_b)*g_y;
 }
 int main()
 {
-	euclid(30,42);
+	BigInt xxx,yyy;
+	BigInt aaa("47");
+	BigInt bbb("30");
+
+	ExEuclid(aaa,bbb,xxx,yyy);
+	euclid(47,30);
+	euclid(300,420);
 	euclid(11,49);
 	euclid(11,7);
 	int32 idx = -1;
@@ -251,8 +271,6 @@ int main()
 	BigInt Q;
 	BigInt Result;
 	BigInt R;
-	
-
 
 
 	Result = BigDiv(X,Y,Q,R);
@@ -268,5 +286,10 @@ int main()
 	mmm.Dump("X mod结果：");
 	BigInt nnn = Mod(Y,eee);
 	nnn.Dump("Y mod结果：");
+
+
+	
+
+
 	return 0;
 }

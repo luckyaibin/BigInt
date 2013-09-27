@@ -373,3 +373,38 @@ BigInt ExEuc(BigInt a,BigInt b,BigInt& x,BigInt& y)
 	}
 
 }
+
+void ExEuclid( BigInt a, BigInt b,BigInt& x,BigInt&y )
+{
+	BigInt old_a = a;
+	BigInt old_b = b;
+
+	//r 为 a % b 的模，也是a / b 的余数
+	//q 为 a / b 的商
+	//这里一次性都求出来
+	BigInt r;
+	BigInt q;
+	BigInt tmp = b;
+
+	BigDiv(a,b,q,r);
+
+	b = r;
+	a = tmp;
+
+	if (b == BigInt("0"))
+	{
+		x = BigInt("1");
+		y = BigInt("0");
+
+		BigInt tmp = x;
+		x = y;
+		y = tmp - q*y;
+		return;
+	}
+
+	ExEuclid(a,b,x,y);
+
+	BigInt old_x = x;
+	x = y;
+	y = old_x - q*x;
+}
