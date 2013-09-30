@@ -1,5 +1,47 @@
 #include "bigint.h"
 
+/*
+	int a = 7;
+	int b = 11; 1011
+
+	a^b = a^( bn * 2^n + bn-1 * 2^(n-1) + ... +  b1 * 2^1 + b0 * 2^0 )
+		= a^( bn * 2^n)    *    a^(bn-1 * 2^(n-1)    * ...  * a^(b1 * 2^1) *  a^(b0 * 2^0)
+
+	bn 为 0，或者1
+	对于 a ^ b :
+	a^11 = a^(2^3) * a^(2^1) * a^(2^0)
+
+	设 cn = a^(2^n);
+	则 cn+1 = a^(2^(n+1)) 
+	= a^(2^(n+1)) 
+	= a^(2^n * 2) 
+	= a^(2^n + 2^n) 
+	= a^(2^n) *  a^(2^n)  
+	= ( a^(2^n) ) ^ 2
+	= (cn)^2
+	可见，cn+1 和 cn形成了这种递推关系
+
+	那么 a^b = cn * cn-1 ... c1 * c0
+		
+
+http://blog.csdn.net/hkdgjqr/article/details/5381292 
+http://blog.csdn.net/hkdgjqr/article/details/5381028
+*/
+int modular_exp(int a,int b,int n=0)
+{
+	int res = 1;
+	int multiplier = a;
+	while(b!=0)
+	{
+		if(b & 1)
+		{
+			res = res * multiplier;
+		}
+		multiplier = multiplier * multiplier;
+		b >>=1;
+	}
+	return res;
+}
 
 int main__()
 {
@@ -200,6 +242,7 @@ void euclid(int a,int b)
 }
 int main()
 {
+	int re = modular_exp(3,11);
 	BigInt xxx,yyy;
 	BigInt aaa("47");
 	BigInt bbb("30");
