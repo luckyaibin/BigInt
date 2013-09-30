@@ -27,7 +27,7 @@
 http://blog.csdn.net/hkdgjqr/article/details/5381292 
 http://blog.csdn.net/hkdgjqr/article/details/5381028
 */
-int modular_exp(int a,int b,int n=0)
+int modular_exp(int a,int b,int m=0)
 {
 	int res = 1;
 	int multiplier = a;
@@ -35,12 +35,27 @@ int modular_exp(int a,int b,int n=0)
 	{
 		if(b & 1)
 		{
-			res = res * multiplier;
+			res = (res * multiplier)%m;
 		}
-		multiplier = multiplier * multiplier;
+		multiplier = (multiplier * multiplier)%m;
 		b >>=1;
 	}
 	return res;
+}
+//1024 = 2^10
+//递归版，分治法，次数更少，应该比modular_exp快，待测
+int rec_modular_exp(int a,int b,int m=0)
+{
+	if (b==0)
+	{
+		return 1;
+	}
+	if (b%2)
+	{
+		return (a*rec_modular_exp(a,b-1,m))%m;
+	}
+	int tmp = rec_modular_exp(a,b/2,m);
+	return (tmp*tmp)%m;
 }
 
 int main__()
@@ -242,7 +257,17 @@ void euclid(int a,int b)
 }
 int main()
 {
-	int re = modular_exp(3,11);
+	int re;
+	for (int i=0;i<99999;i++)
+	{
+		re = modular_exp(3,999999999,99);
+	}
+	for (int i=0;i<99999;i++)
+	{
+		re = rec_modular_exp(3,999999999,99);
+	}
+}
+/*
 	BigInt xxx,yyy;
 	BigInt aaa("47");
 	BigInt bbb("30");
@@ -336,3 +361,5 @@ int main()
 
 	return 0;
 }
+
+*/
