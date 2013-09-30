@@ -9,8 +9,18 @@
 	对于 a ^ b :
 	a^11 = a^(2^3) * a^(2^1) * a^(2^0)
 
+	设 bn = a^(2^n);
+	则 bn+1 = a^(2^(n+1)) 
+	= a^(2^(n+1)) 
+	= a^(2^n * 2) 
+	= a^(2^n + 2^n) 
+	= a^(2^n) *  a^(2^n)  
+	= ( a^(2^n) ) ^ 2
+	= (bn)^2
+	
 */
-
+http://blog.csdn.net/hkdgjqr/article/details/5381292 
+http://blog.csdn.net/hkdgjqr/article/details/5381028
 int modular_exp(int a,int b,int n=0)
 {
 	int res = 0;
