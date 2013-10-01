@@ -12,23 +12,20 @@ int BigInt::Length() const
 }
 //下标是 n n-1 n-2 ... 2 1 0 对应uint32数组
 //由于uint32 数组 是 0 1 2 ... n-1 n，并且为了使用vector时的效率（在头部插入）
-uint32 BigInt::GetRadixBits( uint32 pos ) const
+inline uint32 BigInt::GetRadixBits( uint32 pos ) const
 {
 	if(pos<0 || pos >=m_bits.size() )
 		return 0;
 	return m_bits[pos];
 }
 
-void BigInt::SetRadixBits( uint32 v,uint32 pos )
+inline void BigInt::SetRadixBits( uint32 v,uint32 pos )
 {
 	//assert(pos);
 	if (pos>=m_bits.size())
 	{
-		//m_bits.push_front(0);
-		//m_bits.insert(m_bits.begin(),0);
-		//m_bits.push_back(0);
-		
-		m_bits.resize(pos+1,0);
+		//m_bits.resize(pos+1,0);
+		m_bits.resize(pos*2+1,0);
 	}
 	m_bits[pos] = v;
 }
@@ -45,7 +42,7 @@ void BigInt::AddRadixBits( uint32 val,uint32 pos )
 		//m_bits.push_front(0);
 		//m_bits.insert(m_bits.begin(),0);
 		//m_bits.push_back(0);
-		m_bits.resize(pos+1,0);
+		m_bits.resize(2*pos+1,0);
 	}
 	uint32 carry = 0;
 	uint64 v = m_bits[pos];
@@ -349,31 +346,6 @@ BigInt GCD(const BigInt& X,const BigInt& Y)
 
 */
 
-BigInt ExEuc(BigInt a,BigInt b,BigInt& x,BigInt& y)
-{
-	x = BigInt("0");
-	y = BigInt("1");
-	
-	
-	while ( a!= BigInt("0"))
-	{
-		BigInt i = y;
-
-		y = x - y * a/b ;
-		x = i;
-		i = a;
-
-		a = b % a;
-		b = i;
-		if ( x < BigInt("0") )
-		{
-			x = x + b;
-			return x;
-		}
-	}
-
-}
-
 void ExEuclid( BigInt a, BigInt b,BigInt& x,BigInt&y )
 {
 	BigInt old_a = a;
@@ -407,4 +379,28 @@ void ExEuclid( BigInt a, BigInt b,BigInt& x,BigInt&y )
 	BigInt old_x = x;
 	x = y;
 	y = old_x - q*x;
+}
+
+BigInt ExpMod(const BigInt& a,const BigInt& b,const BigInt& m)
+{
+	BigInt res("1");;
+	BigInt multiplizer = a;
+	BigInt exp = b;
+	BigInt Zero("0");
+	while (exp > Zero)
+	{
+		//取出一个整数字节
+		uint32 lowestbit = exp.GetRadixBits(0);
+		while (lowestbit!=0)
+		{
+			if(lowestbit&1)
+			{
+				res = (res * multiplizer)%m;
+			}
+			multiplizer = (multiplizer * multiplizer)%m;
+			lowestbit = lowestbit >> 1;
+		}
+		exp = exp >> 32;
+	}
+	return res;
 }

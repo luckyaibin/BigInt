@@ -13,6 +13,7 @@ struct BigInt;
 BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R);
 BigInt GCD(const BigInt& X,const BigInt& Y);
 BigInt ExEuc(const BigInt&a,const BigInt& b,BigInt& x,BigInt& y);
+BigInt ExpMod(const BigInt& a,const BigInt& b,const BigInt& m);
 
 void ExEuclid( BigInt a,BigInt b,BigInt& x,BigInt&y );
 
@@ -27,11 +28,12 @@ struct BigInt
 {
 	BigInt():m_Sign(true)//true 为正，false为负
 	{
-		if (m_bits.size() == 0)
-		{
+		m_bits.resize(100);
+		//if (m_bits.size() == 0)
+		//{
 			//m_bits.insert(m_bits.begin(),0);
-			m_bits.push_back(0);
-		}
+		//	m_bits.push_back(0);
+		//}
 	}
 	BigInt(const uint32& ui32)
 	{
@@ -195,9 +197,9 @@ struct BigInt
 	}
 	void Dump(const char * msg="",...) const;
 	//获取pos位的uint32的数
-	uint32 GetRadixBits(uint32 pos) const ;
+	inline uint32 GetRadixBits(uint32 pos) const ;
 
-	void SetRadixBits(uint32 v,uint32 pos);
+	inline void SetRadixBits(uint32 v,uint32 pos);
 
 	void AddRadixBits(uint32 v,uint32 pos);
 
@@ -438,17 +440,32 @@ struct BigInt
 	// 11111110000000011111111000000001 11100000
 	friend BigInt operator<<(const BigInt& X,int bits)
 	{
-		BigInt result,zero;
+		BigInt result=X;
 
 		int complete_ints = bits/32;
 		int remaind = bits%32; //remaind 0~31
 		
 		//32位整数这样移动
-		for(int idx=0;idx<X.Length();idx++)
+		//for(int idx=0;idx<X.Length();idx++)
+		//{
+		//	uint32 v = X.GetRadixBits(idx);
+		//	result.SetRadixBits(v,idx+complete_ints);
+		//}
+
+		if (complete_ints>0)
 		{
-			uint32 v = X.GetRadixBits(idx);
-			result.SetRadixBits(v,idx+complete_ints);
+			//在vector头部（相当于在数的右边）加上complete_ints个0，也就是左移了complete_ints*32位
+			result.m_bits.insert(result.m_bits.begin(),complete_ints,0);
 		}
+		/*
+		if (complete_ints>0)
+		{
+		//先插入0，在插入真正的数据，要比先插入数据，然后在头部插入0要快
+		result.m_bits.insert(result.m_bits.begin(),complete_ints,0);
+		result.m_bits.insert(result.m_bits.end(),X.m_bits.begin(),X.m_bits.end());
+		}
+		*/
+
 		//移动零散的bit:
 		uint32 hi_mask = (remaind==0) ? 0 : (0xffffffff << (32 - remaind)); //因为remaind为0时，值v左移32位仍然是v
 		uint32 lo_mask = 0xffffffff >> remaind;

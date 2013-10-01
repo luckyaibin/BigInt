@@ -257,21 +257,14 @@ void euclid(int a,int b)
 }
 int main()
 {
-	int re;
-	for (int i=0;i<99999;i++)
-	{
-		re = modular_exp(3,999999999,99);
-	}
-	for (int i=0;i<99999;i++)
-	{
-		re = rec_modular_exp(3,999999999,99);
-	}
-}
-/*
 	BigInt xxx,yyy;
-	BigInt aaa("47");
-	BigInt bbb("30");
+	BigInt aaa("4778364587613452341235243563457568678594567352452345456658678567823452345");
+	BigInt bbb("308677618768764352345345234524566748324523465757957812323454565674862345");
 
+	BigInt m("9137629384658708708620983745876186387657163287562876345617623681645761863816457634572834756");
+
+	BigInt exponent_mod = ExpMod(aaa,bbb,m);
+	return 0;
 	ExEuclid(aaa,bbb,xxx,yyy);
 	euclid(47,30);
 	euclid(300,420);
@@ -362,4 +355,3 @@ int main()
 	return 0;
 }
 
-*/
