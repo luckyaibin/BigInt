@@ -239,14 +239,74 @@ struct BigInt
 		int length = 0;
 		for(;(!numbers.empty())&&numbers[length]!='\0';length++);
 
-		for (int i=0;i<length;i++)
+		int base = 10;
+		if (numbers[0]=='0' && (numbers[1]== 'x' || numbers[1]== 'X'))
 		{
-			//N.Dump();
-			int n = numbers[i]-'0';
-			N.Mul(10);
-			//N.Dump();
-			N.Add(n);
-			//N.Dump();
+			base = 16;
+		}
+		
+		//N.Dump();
+		switch (base)
+		{
+		case 10:
+			{
+				for (int i=0;i<length;i++)
+				{
+					int n = numbers[i]-'0';
+					N.Mul(10);
+					//N.Dump();
+					N.Add(n);
+				}
+			}
+			break;
+		case 16:
+			{
+				for (int i=2;i<length;i++)
+				{
+					int n = numbers[i];
+					if (n==' ')
+					{
+						continue;
+					}
+					N.Mul(16);
+					
+					switch(n)
+					{
+					case 'a':
+					case 'A':
+						N.Add(10);
+						break;
+					case 'b':
+					case 'B':
+						N.Add(11);
+						break;
+					case 'c':
+					case 'C':
+						N.Add(12);
+						break;
+					case 'd':
+					case 'D':
+						N.Add(13);
+						break;
+					case 'e':
+					case 'E':
+						N.Add(14);
+						break;
+					case 'f':
+					case 'F':
+						N.Add(15);
+						break;
+					//for 0~9
+					default:
+						{
+							n = n -'0';
+							assert(n>=0 && n<=9);
+							N.Add(n);
+						}
+					}
+				}
+			}
+			break;
 		}
 	}
 	friend BigInt Add(const BigInt& N1,const BigInt& N2)

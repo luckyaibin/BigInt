@@ -271,8 +271,13 @@ int main()
 	//res.Dump("aaa/bbb¶þ½øÖÆ:");
 	BigInt Q;
 	BigInt R;
-	BigInt res2 =  BigDiv(aaa,bbb,Q,R);
+	BigInt res2;// =  BigDiv(aaa,bbb,Q,R);
 	res2.Dump("BigDiv(aaa,bbb...):");
+	
+	aaa = "0xF000FFFF 0000FFFF 00000000";// F000FFFF 0000FFFF "18446744073709551615";//0xffffffffffffffff
+	bbb = "0xFFFF00FF 00000000";// FFFF00FF
+	BigInt res3 = Fast_BigDiv(aaa,bbb,Q,R);//281479271743489
+	res3.Dump("Fast_BigDiv(aaa,bbb...):");
 	return 0;
 }
 

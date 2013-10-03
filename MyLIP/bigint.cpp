@@ -319,14 +319,9 @@ BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
 }
 /*
 
- 11111111000000001111111100000000 00000000111111111111111100000000
+ 00111111000000001111111100000000 00000000111111111111111100000000  00000000111111110000000011111111
  除以:
- 00000000111111110000000011111111 11111111000000000000000011111111
-
-
- 1110 1110 ... 0001 0011
-除以：
- 1000 1000 ... 1100 0011
+ 01111111111111110000000011111111 11111111000000000000000011111111
 */
 
 BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
@@ -339,36 +334,30 @@ BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 	
 	while(a>=b)
 	{
-		uint64 a_uint64_hi = 0;//a.GetNonZeroIdx();
-		uint64 a_uint64_lo = 0;//a.GetNonZeroIdx();
-
-		int32  a_uint64_hi_idx = a.GetNonZeroIdx();
-		if (a_uint64_hi_idx>0)
-		{
-			a_uint64_lo = a.GetRadixBits(a_uint64_hi_idx-1);
-		}
-		//取出了被除数两个uin32值，现在拼成一个uin64
 		uint64 a_uint64=0;
-		a_uint64 = (a_uint64_hi<<32) |  a_uint64_lo;
+		int32  a_uint64_hi_idx = a.GetNonZeroBitIdx();
+		a_uint64 = a.GetRadixBits(a_uint64_hi_idx/32);
+
+		uint64 b_uint64=0;		 
+		int32  b_uint64_hi_idx = b.GetNonZeroBitIdx();		
+		b_uint64 = a.GetRadixBits(b_uint64_hi_idx/32);		
 
 
-		uint64 b_uint64_hi = 0;//a.GetNonZeroIdx();
-		uint64 b_uint64_lo = 0;//a.GetNonZeroIdx();
-
-		int32  b_uint64_hi_idx = b.GetNonZeroIdx();
-		if (b_uint64_hi_idx>0)
+		BigInt r ;
+		while ( a_uint64 <= b_uint64)
 		{
-			b_uint64_lo = b.GetRadixBits(b_uint64_hi_idx-1);
+			b_uint64 = b_uint64>>1;//b_uint64有可能为0，注意！
+			b_uint64_hi_idx--;
 		}
-		//取出了除数两个uin32值，现在拼成一个uin64
-		uint64 b_uint64=0;
-		b_uint64 = (b_uint64_hi<<32) |  b_uint64_lo;
+		//r>0 不一定成立！
+		r = a_uint64 / b_uint64;
 
-		uint64 r = a_uint64 / b_uint64; //r>0 一定成立！
+		 
+		BigInt shift_r =  r  << ( (a_uint64_hi_idx - b_uint64_hi_idx));
+		Result = Result + shift_r;
 
-		Result = Result + ( r << (a_uint64_hi_idx*32) );
-
-		a = a - ( b * ( r << (a_uint64_hi_idx*32) ) );		
+		a = a - ( b * shift_r );
+		 
 	}
 
 	Q = Result;
