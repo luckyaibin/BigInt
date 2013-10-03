@@ -11,6 +11,7 @@ typedef long long int64;
 struct BigInt;
 //前向声明
 BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R);
+BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R);
 BigInt GCD(const BigInt& X,const BigInt& Y);
 BigInt ExEuc(const BigInt&a,const BigInt& b,BigInt& x,BigInt& y);
 BigInt ExpMod(const BigInt& a,const BigInt& b,const BigInt& m);
@@ -28,7 +29,7 @@ struct BigInt
 {
 	BigInt():m_Sign(true)//true 为正，false为负
 	{
-		m_bits.resize(100);
+		m_bits.resize(10);
 		//if (m_bits.size() == 0)
 		//{
 			//m_bits.insert(m_bits.begin(),0);
@@ -66,7 +67,8 @@ struct BigInt
 
 	const static bool NeedCarry(uint64 result);
 	
-	int Length() const;
+	int Length()const;
+	int ValidLength() const;
 	void Reset()
 	{
 		m_bits.clear();
@@ -74,8 +76,10 @@ struct BigInt
 	}
 	
 	//获得最高为1的比特的索引 N N-1 ... 3 2 1 0
-	uint32 GetNonZeroBitIdx(); //get_non_zero_bit_idx;
+	int32 GetNonZeroBitIdx(); //get_non_zero_bit_idx;
 
+	//获取高位第一个不为零的uint32块的索引
+	int32 BigInt::GetNonZeroIdx()const;
 	//比较大小 
 	/*
 		00000000 00001111 11110000 0000111
@@ -83,8 +87,8 @@ struct BigInt
 	*/
 	int32 Compare(const BigInt & N) const
 	{
-		int32 idx1 = this->Length() - 1;
-		int32 idx2 = N.Length() - 1;
+		int32 idx1 = this->ValidLength() - 1;
+		int32 idx2 = N.ValidLength() - 1;
 
 		uint32 v1 = 0;
 		uint32 v2 = 0;
@@ -197,9 +201,25 @@ struct BigInt
 	}
 	void Dump(const char * msg="",...) const;
 	//获取pos位的uint32的数
-	inline uint32 GetRadixBits(uint32 pos) const ;
+	//下标是 n n-1 n-2 ... 2 1 0 对应uint32数组
+	//由于uint32 数组 是 0 1 2 ... n-1 n，并且为了使用vector时的效率（在头部插入）
+	inline uint32 GetRadixBits(uint32 pos) const
+	{
+		if(pos<0 || pos >=m_bits.size() )
+			return 0;
+		return m_bits[pos];
+	}
 
-	inline void SetRadixBits(uint32 v,uint32 pos);
+	inline void SetRadixBits(uint32 v,uint32 pos)
+	{
+		//assert(pos);
+		if (pos>=m_bits.size())
+		{
+			//m_bits.resize(pos+1,0);
+			m_bits.resize(pos+1,0);
+		}
+		m_bits[pos] = v;
+	}
 
 	void AddRadixBits(uint32 v,uint32 pos);
 
@@ -236,7 +256,7 @@ struct BigInt
 
 		uint64 carry=0;
 		uint32 index=0;
-		for (;index<N1.Length() || index < N2.Length();index++)
+		for (;index<N1.ValidLength() || index < N2.ValidLength();index++)
 		{
 			uint32 n1 = N1.GetRadixBits(index);
 			uint32 n2 = N2.GetRadixBits(index);
@@ -255,10 +275,9 @@ struct BigInt
 	//N1 > N2,那么N1长度大于等于N2长度
 	friend BigInt Minus(const BigInt& N1,const BigInt& N2)
 	{
-		BigInt R;
-		R = N1;
+		BigInt R=N1;
 		
-		for (int index=0;index<N2.Length();index++)
+		for (int index=0;index<N2.ValidLength();index++)
 		{
 			uint32 v = N2.GetRadixBits(index);
 			R.MinusRadixBits(v,index);
@@ -289,9 +308,9 @@ struct BigInt
 
 			uint64 v = 0;
 			
-			for (uint32 index1 = 0;index1<N1.Length();index1++)
+			for (uint32 index1 = 0;index1<N1.ValidLength();index1++)
 			{
-				for (	uint32 index2 = 0;index2<N2.Length();index2++)
+				for (	uint32 index2 = 0;index2<N2.ValidLength();index2++)
 				{
 					uint64 n1 = N1.GetRadixBits(index1);
 					uint64 n2 = N2.GetRadixBits(index2);
@@ -337,7 +356,7 @@ struct BigInt
 	{
 		BigInt result,zero;
 
-		if (bits>=this->Length()*4*8)
+		if (bits>=this->ValidLength()*4*8)
 		{
 			* this =  zero;
 			return *this;
@@ -346,11 +365,11 @@ struct BigInt
 		int complete_ints = bits/32;
 		int remaind = bits%32;
 
-		int from_hi_ints = this->Length() - complete_ints;
+		int from_hi_ints = this->ValidLength() - complete_ints;
 
 		for (int i=0;i<from_hi_ints;i++)
 		{
-			uint32 v = this->GetRadixBits(this->Length() - i - 1);
+			uint32 v = this->GetRadixBits(this->ValidLength() - i - 1);
 			result.SetRadixBits(v,from_hi_ints - i - 1);
 		}
 
@@ -363,7 +382,7 @@ struct BigInt
 		uint32 hi_mask = 0xffffffff << remaind;
 		uint32 lo_mask = 0xffffffff >>(32 - remaind);
 
-		for (int j=0;j<result.Length();j++)
+		for (int j=0;j<result.ValidLength();j++)
 		{
 			uint32 hi_v=result.GetRadixBits(j+1);
 
@@ -386,7 +405,7 @@ struct BigInt
 	{
 		BigInt result,zero;
 
-		if (bits>=X.Length()*4*8)
+		if (bits>=X.ValidLength()*4*8)
 		{
 			return zero;
 		}
@@ -394,11 +413,11 @@ struct BigInt
 		int complete_ints = bits/32;
 		int remaind = bits%32;
 
-		int from_hi_ints = X.Length() - complete_ints;
+		int from_hi_ints = X.ValidLength() - complete_ints;
 
 		for (int i=0;i<from_hi_ints;i++)
 		{
-			uint32 v = X.GetRadixBits(X.Length() - i - 1);
+			uint32 v = X.GetRadixBits(X.ValidLength() - i - 1);
 			result.SetRadixBits(v,from_hi_ints - i - 1);
 		}
 		
@@ -415,7 +434,7 @@ struct BigInt
 
 
 		
-		for (int j=0;remaind && j<result.Length();j++)
+		for (int j=0;remaind && j<result.ValidLength();j++)
 		{
 			uint32 hi_v=result.GetRadixBits(j+1);
 			
@@ -470,7 +489,7 @@ struct BigInt
 		uint32 hi_mask = (remaind==0) ? 0 : (0xffffffff << (32 - remaind)); //因为remaind为0时，值v左移32位仍然是v
 		uint32 lo_mask = 0xffffffff >> remaind;
 		
-		for(int idx = result.Length();remaind && idx>=0;idx--)
+		for(int idx = result.ValidLength();remaind && idx>=0;idx--)
 		{
 			uint32 hi_v = result.GetRadixBits(idx);
 			uint32 lo_v = result.GetRadixBits(idx-1);
@@ -486,7 +505,7 @@ struct BigInt
 	//大数除法：
 	//返回两个大数除法的商，同时Q置为商，R为余数
 	friend BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R);
-
+	friend BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R);
 	friend BigInt operator/ (const BigInt& X,const BigInt& Y)
 	{
 		BigInt Q;

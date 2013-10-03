@@ -6,29 +6,17 @@ const  bool BigInt::NeedCarry( uint64 result )
 	return result>CARDINAL;
 }
 
-int BigInt::Length() const
+int BigInt::Length()const
 {
 	return m_bits.size();
 }
-//下标是 n n-1 n-2 ... 2 1 0 对应uint32数组
-//由于uint32 数组 是 0 1 2 ... n-1 n，并且为了使用vector时的效率（在头部插入）
-inline uint32 BigInt::GetRadixBits( uint32 pos ) const
+int BigInt::ValidLength() const
 {
-	if(pos<0 || pos >=m_bits.size() )
-		return 0;
-	return m_bits[pos];
+	return (m_bits.size()>0)?(GetNonZeroIdx()+1):(0); 
 }
 
-inline void BigInt::SetRadixBits( uint32 v,uint32 pos )
-{
-	//assert(pos);
-	if (pos>=m_bits.size())
-	{
-		//m_bits.resize(pos+1,0);
-		m_bits.resize(pos*2+1,0);
-	}
-	m_bits[pos] = v;
-}
+
+
 
 void BigInt::AddRadixBits( uint32 val,uint32 pos )
 {
@@ -42,7 +30,7 @@ void BigInt::AddRadixBits( uint32 val,uint32 pos )
 		//m_bits.push_front(0);
 		//m_bits.insert(m_bits.begin(),0);
 		//m_bits.push_back(0);
-		m_bits.resize(2*pos+1,0);
+		m_bits.resize(pos+1,0);
 	}
 	uint32 carry = 0;
 	uint64 v = m_bits[pos];
@@ -221,10 +209,11 @@ std::string BigInt::ToString() const
 	return numbers;
 }
 
-uint32 BigInt::GetNonZeroBitIdx() /*get_non_zero_bit_idx */
+
+int32 BigInt::GetNonZeroBitIdx() /*get_non_zero_bit_idx */
 {
 	int hightest_idx = -1;
-	int len = Length();
+	int len = ValidLength();
 	for (int i=len-1;i>=0;i--)
 	{
 		uint32 v = GetRadixBits(i);
@@ -243,21 +232,48 @@ uint32 BigInt::GetNonZeroBitIdx() /*get_non_zero_bit_idx */
 RETURN: 
 	return hightest_idx;
 }
+int32 BigInt::GetNonZeroIdx() const
+{
+	int hightest_idx = -1;
+	int len = m_bits.size();
+	for (int i=len-1;i>=0;i--)
+	{
+		uint32 v = GetRadixBits(i);
+		if (v)
+		{
+			hightest_idx =i;
+			goto RETURN;	 
+		}
+	}
+RETURN: 
+	return hightest_idx;
+}
 BigInt operator+(const BigInt& X,const BigInt& Y)
 {
 	BigInt Z;
+	BigInt Smaller;
 	uint32 carry=0;
-	uint32 xlen = X.Length();
-	uint32 ylen = Y.Length();
-	for (uint32 i=0;i<std::max<uint32>(xlen,ylen);i++)
+	int32 xlen = X.GetNonZeroIdx()+1;//X.Length();//
+	int32 ylen = Y.GetNonZeroIdx()+1;//Y.Length();//
+	if (xlen>=ylen)
 	{
-		uint32 x = X.GetRadixBits(i);
-		uint32 y = Y.GetRadixBits(i);
-		uint64 z = (uint64)x + y + carry;
-		carry = (uint32)(z/X.RADIX);
-		z = z % X.RADIX;
-		Z.AddRadixBits((uint32)z,i);
-		Z.AddRadixBits(carry,i+1);
+		Z = X;
+		Smaller = Y;
+	}
+	else
+	{
+		Z = Y;
+		Smaller = X;
+	}
+	for (uint32 i=0;i<std::min<uint32>(xlen,ylen);i++)
+	{
+		//uint32 x = X.GetRadixBits(i);
+		//uint32 y = Y.GetRadixBits(i);
+		//uint64 z = (uint64)x + y + carry;
+		//carry = (uint32)(z/X.RADIX);
+		//z = z % X.RADIX;
+		Z.AddRadixBits((uint32)Smaller.GetRadixBits(i),i);
+		//Z.AddRadixBits(carry,i+1);
 	}
 	return Z;
 }
@@ -301,7 +317,64 @@ BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
 	R = a;
 	return Result;
 }
+/*
 
+ 11111111000000001111111100000000 00000000111111111111111100000000
+ 除以:
+ 00000000111111110000000011111111 11111111000000000000000011111111
+
+
+ 1110 1110 ... 0001 0011
+除以：
+ 1000 1000 ... 1100 0011
+*/
+
+BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
+{
+	BigInt One("1");
+	BigInt Result("0");
+	BigInt a = X;
+	BigInt b = Y;
+
+	
+	while(a>=b)
+	{
+		uint64 a_uint64_hi = 0;//a.GetNonZeroIdx();
+		uint64 a_uint64_lo = 0;//a.GetNonZeroIdx();
+
+		int32  a_uint64_hi_idx = a.GetNonZeroIdx();
+		if (a_uint64_hi_idx>0)
+		{
+			a_uint64_lo = a.GetRadixBits(a_uint64_hi_idx-1);
+		}
+		//取出了被除数两个uin32值，现在拼成一个uin64
+		uint64 a_uint64=0;
+		a_uint64 = (a_uint64_hi<<32) |  a_uint64_lo;
+
+
+		uint64 b_uint64_hi = 0;//a.GetNonZeroIdx();
+		uint64 b_uint64_lo = 0;//a.GetNonZeroIdx();
+
+		int32  b_uint64_hi_idx = b.GetNonZeroIdx();
+		if (b_uint64_hi_idx>0)
+		{
+			b_uint64_lo = b.GetRadixBits(b_uint64_hi_idx-1);
+		}
+		//取出了除数两个uin32值，现在拼成一个uin64
+		uint64 b_uint64=0;
+		b_uint64 = (b_uint64_hi<<32) |  b_uint64_lo;
+
+		uint64 r = a_uint64 / b_uint64; //r>0 一定成立！
+
+		Result = Result + ( r << (a_uint64_hi_idx*32) );
+
+		a = a - ( b * ( r << (a_uint64_hi_idx*32) ) );		
+	}
+
+	Q = Result;
+	R = a;
+	return Result;
+}
 //欧几里德算法，求X和Y的最大公约数
 BigInt GCD(const BigInt& X,const BigInt& Y)
 {
