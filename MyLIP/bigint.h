@@ -29,7 +29,7 @@ struct BigInt
 {
 	BigInt():m_Sign(true)//true 为正，false为负
 	{
-		m_bits.resize(10);
+		m_bits.resize(1);
 		//if (m_bits.size() == 0)
 		//{
 			//m_bits.insert(m_bits.begin(),0);
@@ -80,6 +80,8 @@ struct BigInt
 
 	//获取高位第一个不为零的uint32块的索引
 	int32 BigInt::GetNonZeroIdx()const;
+	//获取从idx_hi,到idx_lo之间的数据构成的BigInt，用于除法的试除
+	BigInt GetBitRangBigInt(int idx_hi,int idx_lo) const;
 	//比较大小 
 	/*
 		00000000 00001111 11110000 0000111
@@ -374,6 +376,10 @@ struct BigInt
 				{
 					uint64 n1 = N1.GetRadixBits(index1);
 					uint64 n2 = N2.GetRadixBits(index2);
+					if (n1==0 || n2==0)
+					{
+						continue;
+					}
 					//注意这里转型操作，否则v里的结果是32位的
 					v = (uint64)n1*(uint64)n2 ;
 					carry = v / RADIX;
@@ -412,7 +418,8 @@ struct BigInt
 
 	// 11110000 11110000        00110011 11000011 11110000 00001111  (2)
 
-	BigInt& operator>>(int bits)
+	//BigInt& operator>>(int bits)
+	BigInt& operator_not_use_as_above(int bits)
 	{
 		BigInt result,zero;
 

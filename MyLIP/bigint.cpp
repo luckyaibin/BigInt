@@ -248,6 +248,25 @@ int32 BigInt::GetNonZeroIdx() const
 RETURN: 
 	return hightest_idx;
 }
+/*
+      
+	idx_id                   idx_lo
+	  |                        |
+ 11110000 00001111 11001100 00110011
+ 
+*/
+BigInt BigInt::GetBitRangBigInt(int bit_idx_hi,int bit_idx_lo) const
+{
+	assert(bit_idx_hi>=0 && bit_idx_lo>=0 &&"invalid index for GetBitRangeBigInt()!");
+
+	BigInt res;
+
+	int highest_bit_idx = this->Length()*32 - 1;// this->GetNonZeroBitIdx();
+
+	res = (*this)<< (highest_bit_idx-bit_idx_hi);// 左移，把高于bit_idx_hi的bit都扔掉
+	res = (res)>>( (highest_bit_idx-bit_idx_hi) + bit_idx_lo);
+	return res;
+}
 BigInt operator+(const BigInt& X,const BigInt& Y)
 {
 	BigInt Z;
@@ -319,9 +338,63 @@ BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
 }
 /*
 
+
+ ffffffff * ffffffff = FFFFFFFE00000001
+
+ //最大值
+ ffffffffffffffff / 80000000 = 1 FFFFFFFF
+
+ //最小值
+ 0000000100000000 / ffffffff = 1
+ 
+
+  2379../29.. :
+
+      0082..
+    =======
+29..| 2379..
+      232
+	 -----
+	    59
+		58
+	 -----
+	     1
+
+ 现在把b对齐（令29的最高位>=5），通过移位(乘以2^n)
+
+        9..
+    =======
+58..| 4758..
+      522 > 第一次的试商（q = 47/5 == 9），不满足,那么q--;
+	 -----
+	
+(
+          
+      =======
+ 58.. | 5858  第一次试商，q=58 / 5 == 
+
+)
+	
+
+
+        82
+    =======
+ 58 | 4758
+      464 > 第一次的修正，满足，则继续
+	 -----
+	   118  第二次的试商(q = 11/5 == 2),满足
+	   116
+    -------
+	     2
+
  00111111000000001111111100000000 00000000111111111111111100000000  00000000111111110000000011111111
  除以:
  01111111111111110000000011111111 11111111000000000000000011111111
+
+ 93 - 63 = 30 
+
+ x>= B/2.
+ (B-1)*(B-1) / x  <= (B-1)(B-1)*2/B <= (B*B - 2*B + 1) * 2 / B <= (B - 2 + 1/B ) * 2
 */
 
 BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
@@ -330,34 +403,72 @@ BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 	BigInt Result("0");
 	BigInt a = X;
 	BigInt b = Y;
+	int adjust_shift = 0;
+	//调整b,让b的最高位 >= RADIX/2
+	uint32 tmp =  b.GetRadixBits(b.GetNonZeroIdx());
+	uint32 rrr = (BigInt::RADIX/2);
+	while ( b.GetRadixBits(b.GetNonZeroIdx()) < (BigInt::RADIX/2))
+	{
+		b=(b<<1);
+		adjust_shift++;
+	}
 
-	
+	//调整b的同时，也要调整a
+	if(adjust_shift>0)
+	{
+		a = a<<adjust_shift;
+	}
+ 
+	int a_begin_idx = a.GetNonZeroIdx();
+	int a_valid_len = a.ValidLength();
+	int b_begin_idx = b.GetNonZeroIdx();
+	int b_valid_len = b.ValidLength();
+
+	/*
+	    abcd
+        ====
+    efg| 
+	*/
+	//a的长度等于b的长度，要在a的最前面插入0，保证a的长度比b至少长1
+	if(a_valid_len==b_valid_len)
+	{
+		a.m_bits.push_back(0);
+		a_begin_idx++;//前移一位，从前面的0开始
+	}
+
+	int total_guess_time = 0;
 	while(a>=b)
 	{
-		uint64 a_uint64=0;
-		int32  a_uint64_hi_idx = a.GetNonZeroBitIdx();
-		a_uint64 = a.GetRadixBits(a_uint64_hi_idx/32);
+		//最高位索引uit32的最高bit，到低位索引uint32的最低bit
+		BigInt a_part = a.GetBitRangBigInt(a_begin_idx*32+31,(a_begin_idx-b_valid_len)*32);
 
-		uint64 b_uint64=0;		 
-		int32  b_uint64_hi_idx = b.GetNonZeroBitIdx();		
-		b_uint64 = a.GetRadixBits(b_uint64_hi_idx/32);		
+		//取出a的高2位（2个uint32），b的高1位（1个uint32），对商估值
 
+		uint64 a_part_hi_2 = (uint64)a_part.GetRadixBits(a_part.Length() - 1) << 32 | (uint64)a_part.GetRadixBits(a_part.Length() - 2);
 
-		BigInt r ;
-		while ( a_uint64 <= b_uint64)
+		uint64 b_part_hi_1 = b.GetRadixBits(b_begin_idx);
+
+		uint64 guess_v = a_part_hi_2 / b_part_hi_1;
+
+		int guess_time = 0;
+		while (a_part< b*guess_v)//guess_v最多比真实值<2,即， guess_v-2<= real_v <= guess_v;
 		{
-			b_uint64 = b_uint64>>1;//b_uint64有可能为0，注意！
-			b_uint64_hi_idx--;
+			guess_v--;
+			guess_time++;
+			total_guess_time++;
 		}
-		//r>0 不一定成立！
-		r = a_uint64 / b_uint64;
+		//此后的guess_v就是真实的值
+		printf("total_guess_time:%d guess_time:%d \n",total_guess_time,guess_time);
+		//assert(guess_time<=2);
+		
+		uint32 carry = guess_v / BigInt::RADIX;
+		uint32 value = guess_v % BigInt::RADIX;
+		Result.AddRadixBits(value,a_begin_idx-b_valid_len);
+		Result.AddRadixBits(carry,a_begin_idx-b_valid_len+1);
+		
+		a = a - b*(BigInt(guess_v)<<(a_begin_idx-b_valid_len)*32);
 
-		 
-		BigInt shift_r =  r  << ( (a_uint64_hi_idx - b_uint64_hi_idx));
-		Result = Result + shift_r;
-
-		a = a - ( b * shift_r );
-		 
+		a_begin_idx--;
 	}
 
 	Q = Result;
