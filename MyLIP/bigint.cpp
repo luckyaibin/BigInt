@@ -472,7 +472,7 @@ BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 	}
 
 	Q = Result;
-	R = a;
+	R = a>>adjust_shift;
 	return Result;
 }
 //欧几里德算法，求X和Y的最大公约数
