@@ -40,6 +40,13 @@ struct BigInt
 	{
 		m_bits.push_back(ui32);
 	}
+	BigInt(const uint64& ui64)
+	{
+		uint32 carry = ui64 / RADIX;
+		uint32 v = ui64 % RADIX;
+		m_bits.push_back(v);
+		m_bits.push_back(carry);
+	}
 	BigInt(const char * intstr)
 	{
 		Reset();
@@ -81,7 +88,7 @@ struct BigInt
 	//获取高位第一个不为零的uint32块的索引
 	int32 BigInt::GetNonZeroIdx()const;
 	//获取从idx_hi,到idx_lo之间的数据构成的BigInt，用于除法的试除
-	BigInt GetBitRangBigInt(int idx_hi,int idx_lo) const;
+	BigInt GetBitRangBigInt(int bit_idx_hi,int bit_idx_lo) const;
 	//比较大小 
 	/*
 		00000000 00001111 11110000 0000111
@@ -413,61 +420,6 @@ struct BigInt
 		return ::Mod(X,Y);
 	}
 
-
-	
-
-	// 11110000 11110000        00110011 11000011 11110000 00001111  (2)
-
-	//BigInt& operator>>(int bits)
-	BigInt& operator_not_use_as_above(int bits)
-	{
-		BigInt result,zero;
-
-		if (bits>=this->ValidLength()*4*8)
-		{
-			* this =  zero;
-			return *this;
-		}
-
-		int complete_ints = bits/32;
-		int remaind = bits%32;
-
-		int from_hi_ints = this->ValidLength() - complete_ints;
-
-		for (int i=0;i<from_hi_ints;i++)
-		{
-			uint32 v = this->GetRadixBits(this->ValidLength() - i - 1);
-			result.SetRadixBits(v,from_hi_ints - i - 1);
-		}
-
-		// 11110000 11110000 11110000 11110000 
-
-		//右移一位
-		// 01111000 01111000 01111000 01111000
-
-		//向右移动remaind位，hi_mask是 31 ~ remaind ，lo_mask 是 remaind ~ 0位
-		uint32 hi_mask = 0xffffffff << remaind;
-		uint32 lo_mask = 0xffffffff >>(32 - remaind);
-
-		for (int j=0;j<result.ValidLength();j++)
-		{
-			uint32 hi_v=result.GetRadixBits(j+1);
-
-			uint32 bits_from_hi = hi_v & lo_mask; // 高一位的
-
-			uint32 v = result.GetRadixBits(j);
-
-
-			uint32 bits_from_lo = v &  hi_mask;
-
-			//高位的bits移到低位的 高bit部分，再和原来低位的搞bit部分组成新的值
-			uint32 new_v = (bits_from_hi << (32-remaind) )  | (bits_from_lo>>remaind);
-
-			result.SetRadixBits(new_v,j);
-		}
-		* this =  result;
-		return *this;
-	}
 	friend BigInt operator>>(const BigInt& X,int bits)
 	{
 		BigInt result,zero;

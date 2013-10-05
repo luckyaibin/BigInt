@@ -399,14 +399,11 @@ BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
 
 BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 {
-	BigInt One("1");
 	BigInt Result("0");
 	BigInt a = X;
 	BigInt b = Y;
 	int adjust_shift = 0;
 	//调整b,让b的最高位 >= RADIX/2
-	uint32 tmp =  b.GetRadixBits(b.GetNonZeroIdx());
-	uint32 rrr = (BigInt::RADIX/2);
 	while ( b.GetRadixBits(b.GetNonZeroIdx()) < (BigInt::RADIX/2))
 	{
 		b=(b<<1);
@@ -439,19 +436,19 @@ BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 	int total_guess_time = 0;
 	while(a>=b)
 	{
-		//最高位索引uit32的最高bit，到低位索引uint32的最低bit
+		//从a高位取出比b长度+1个uint32。 最高位索引uit32的最高bit，到低位索引uint32的最低bit
+		//由于a可能是对齐过的，所以a的最高位的uint32可能是0，因此下面很多地方都用了Length，而不是ValidLength
 		BigInt a_part = a.GetBitRangBigInt(a_begin_idx*32+31,(a_begin_idx-b_valid_len)*32);
 
 		//取出a的高2位（2个uint32），b的高1位（1个uint32），对商估值
-
 		uint64 a_part_hi_2 = (uint64)a_part.GetRadixBits(a_part.Length() - 1) << 32 | (uint64)a_part.GetRadixBits(a_part.Length() - 2);
 
-		uint64 b_part_hi_1 = b.GetRadixBits(b_begin_idx);
+		uint64 b_part_hi_1 = b.GetRadixBits(b.GetNonZeroIdx());
 
 		uint64 guess_v = a_part_hi_2 / b_part_hi_1;
 
 		int guess_time = 0;
-		while (a_part< b*guess_v)//guess_v最多比真实值<2,即， guess_v-2<= real_v <= guess_v;
+		while (a_part< b*guess_v)//guess_v最多比真实值<2,即， guess_v-2<= real_v <= guess_v;这段的推导要看唐纳德第二卷
 		{
 			guess_v--;
 			guess_time++;
@@ -463,9 +460,15 @@ BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 		
 		uint32 carry = guess_v / BigInt::RADIX;
 		uint32 value = guess_v % BigInt::RADIX;
+		if (carry>0)
+		{
+			int stop;
+			printf("stop.");
+		}
 		Result.AddRadixBits(value,a_begin_idx-b_valid_len);
 		Result.AddRadixBits(carry,a_begin_idx-b_valid_len+1);
 		
+		//这里carry有可能>=0，要用uint64位的构造函数
 		a = a - b*(BigInt(guess_v)<<(a_begin_idx-b_valid_len)*32);
 
 		a_begin_idx--;
