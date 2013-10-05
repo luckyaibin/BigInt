@@ -384,11 +384,15 @@ struct BigInt
 			int len2 = N2.ValidLength();
 			for (uint32 index1 = 0;index1<len1;index1++)
 			{
-				for (	uint32 index2 = 0;index2<len2;index2++)
+				uint64 n1 = N1.GetRadixBits(index1);
+				if (n1==0)
 				{
-					uint64 n1 = N1.GetRadixBits(index1);
+					continue;
+				}
+				for (uint32 index2 = 0;index2<len2;index2++)
+				{
 					uint64 n2 = N2.GetRadixBits(index2);
-					if (n1==0 || n2==0)
+					if (n2==0)
 					{
 						continue;
 					}
@@ -397,7 +401,6 @@ struct BigInt
 					carry = v / RADIX;
 					v = v % RADIX;
 
-					uint32 r = R.GetRadixBits(index1+index2);
 					//把值和进位加到结果中
 					R.AddRadixBits(v,index1+index2);
 					R.AddRadixBits(carry,index1+index2+1);
