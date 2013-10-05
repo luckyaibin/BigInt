@@ -76,6 +76,8 @@ struct BigInt
 	
 	int Length()const;
 	int ValidLength() const;
+	//去掉从最高位的连续为0的元素
+	void TrimHiZeros();
 	void Reset()
 	{
 		m_bits.clear();
@@ -336,6 +338,7 @@ struct BigInt
 			R.AddRadixBits((uint32)v,index);
 			R.AddRadixBits((uint32)carry,index+1);
 		}
+		R.TrimHiZeros();
 		return R;
 	}
 	
@@ -351,6 +354,7 @@ struct BigInt
 			uint32 v = N2.GetRadixBits(index);
 			R.MinusRadixBits(v,index);
 		}
+		R.TrimHiZeros();
 		return R;
 	}
 
@@ -376,10 +380,11 @@ struct BigInt
 			uint32 carry = 0;
 
 			uint64 v = 0;
-			
-			for (uint32 index1 = 0;index1<N1.ValidLength();index1++)
+			int len1 = N1.ValidLength();
+			int len2 = N2.ValidLength();
+			for (uint32 index1 = 0;index1<len1;index1++)
 			{
-				for (	uint32 index2 = 0;index2<N2.ValidLength();index2++)
+				for (	uint32 index2 = 0;index2<len2;index2++)
 				{
 					uint64 n1 = N1.GetRadixBits(index1);
 					uint64 n2 = N2.GetRadixBits(index2);
@@ -398,6 +403,7 @@ struct BigInt
 					R.AddRadixBits(carry,index1+index2+1);
 				}
 			}
+		R.TrimHiZeros();
 		return R;
 	};
 
@@ -411,7 +417,7 @@ struct BigInt
 	{
 		BigInt q;//商
 		BigInt r;//余
-		BigDiv(X,M,q,r);
+		Fast_BigDiv(X,M,q,r);
 		return r;
 	}
 
@@ -422,7 +428,7 @@ struct BigInt
 
 	friend BigInt operator>>(const BigInt& X,int bits)
 	{
-		BigInt result,zero;
+		BigInt result = X,zero;
 
 		if (bits>=X.ValidLength()*4*8)
 		{
@@ -432,13 +438,20 @@ struct BigInt
 		int complete_ints = bits/32;
 		int remaind = bits%32;
 
-		int from_hi_ints = X.ValidLength() - complete_ints;
+		//int from_hi_ints = X.ValidLength() - complete_ints;
 
-		for (int i=0;i<from_hi_ints;i++)
+		//for (int i=0;i<from_hi_ints;i++)
+		//{
+		//	uint32 v = X.GetRadixBits(X.ValidLength() - i - 1);
+		//	result.SetRadixBits(v,from_hi_ints - i - 1);
+		//}
+		
+		if (complete_ints>0)
 		{
-			uint32 v = X.GetRadixBits(X.ValidLength() - i - 1);
-			result.SetRadixBits(v,from_hi_ints - i - 1);
+			result.m_bits.erase(result.m_bits.begin(),result.m_bits.begin() + complete_ints);
 		}
+
+
 		
 		//这里可以优化掉，当remaind	> 0 才进行下面的操作，也就不存在int移动32bit之后期待为0，但是值不变的现象
 
@@ -469,6 +482,7 @@ struct BigInt
 
 			result.SetRadixBits(new_v,j);
 		}
+		result.TrimHiZeros();
 		return result;
 
 	}
@@ -514,10 +528,13 @@ struct BigInt
 			uint32 lo_v = result.GetRadixBits(idx-1);
 
 			uint32 new_hi_v = ( (hi_v & lo_mask) << remaind ) | ( ( lo_v & hi_mask ) >> (32 - remaind) );
-			result.SetRadixBits(new_hi_v,idx);
+			if (new_hi_v) //不随意添加额外的空白uint32
+			{
+				result.SetRadixBits(new_hi_v,idx);
+			}
 		}
 
-
+		result.TrimHiZeros();
 		return result;
 	}
 	
@@ -529,7 +546,7 @@ struct BigInt
 	{
 		BigInt Q;
 		BigInt R;
-		return BigDiv(X,Y,Q,R);
+		return Fast_BigDiv(X,Y,Q,R);
 	}
 
 	//欧几里德算法，求X和Y的最大公约数

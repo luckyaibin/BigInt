@@ -15,6 +15,19 @@ int BigInt::ValidLength() const
 	return (m_bits.size()>0)?(GetNonZeroIdx()+1):(0); 
 }
 
+void BigInt::TrimHiZeros()
+{
+	int v = 0;
+	while ( (v=m_bits[m_bits.size()-1]) == 0 )
+	{
+		m_bits.erase(m_bits.begin()+m_bits.size()-1);
+	}
+	if (m_bits.size()==0)
+	{
+		m_bits.push_back(0);
+	}
+}
+
 
 
 
@@ -257,8 +270,11 @@ RETURN:
 */
 BigInt BigInt::GetBitRangBigInt(int bit_idx_hi,int bit_idx_lo) const
 {
-	assert(bit_idx_hi>=0 && bit_idx_lo>=0 &&"invalid index for GetBitRangeBigInt()!");
-
+	//assert(bit_idx_hi>=0 && bit_idx_lo>=0 &&"invalid index for GetBitRangeBigInt()!");
+	if ( bit_idx_hi< 0 ||  bit_idx_lo<0 )
+	{
+		printf("stop.");
+	}
 	BigInt res;
 
 	int highest_bit_idx = this->Length()*32 - 1;// this->GetNonZeroBitIdx();
@@ -297,6 +313,9 @@ BigInt operator+(const BigInt& X,const BigInt& Y)
 	return Z;
 }
 
+/*
+二进制形式的除法
+*/
 BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
 {
 	BigInt One("1");
@@ -337,17 +356,8 @@ BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
 	return Result;
 }
 /*
-
-
- ffffffff * ffffffff = FFFFFFFE00000001
-
- //最大值
- ffffffffffffffff / 80000000 = 1 FFFFFFFF
-
- //最小值
- 0000000100000000 / ffffffff = 1
- 
-
+0x100000000进制的除法
+这里用到的估值算法要看唐纳特的第二卷，本人也未完全理解
   2379../29.. :
 
       0082..
@@ -368,14 +378,10 @@ BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
       522 > 第一次的试商（q = 47/5 == 9），不满足,那么q--;
 	 -----
 	
-(
-          
+(          
       =======
  58.. | 5858  第一次试商，q=58 / 5 == 
-
 )
-	
-
 
         82
     =======
@@ -386,15 +392,6 @@ BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
 	   116
     -------
 	     2
-
- 00111111000000001111111100000000 00000000111111111111111100000000  00000000111111110000000011111111
- 除以:
- 01111111111111110000000011111111 11111111000000000000000011111111
-
- 93 - 63 = 30 
-
- x>= B/2.
- (B-1)*(B-1) / x  <= (B-1)(B-1)*2/B <= (B*B - 2*B + 1) * 2 / B <= (B - 2 + 1/B ) * 2
 */
 
 BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
@@ -409,31 +406,22 @@ BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 		b=(b<<1);
 		adjust_shift++;
 	}
-
 	//调整b的同时，也要调整a
 	if(adjust_shift>0)
 	{
 		a = a<<adjust_shift;
-	}
- 
+	} 
 	int a_begin_idx = a.GetNonZeroIdx();
 	int a_valid_len = a.ValidLength();
 	int b_begin_idx = b.GetNonZeroIdx();
 	int b_valid_len = b.ValidLength();
 
-	/*
-	    abcd
-        ====
-    efg| 
-	*/
 	//a的长度等于b的长度，要在a的最前面插入0，保证a的长度比b至少长1
 	if(a_valid_len==b_valid_len)
 	{
 		a.m_bits.push_back(0);
 		a_begin_idx++;//前移一位，从前面的0开始
 	}
-
-	int total_guess_time = 0;
 	while(a>=b)
 	{
 		//从a高位取出比b长度+1个uint32。 最高位索引uit32的最高bit，到低位索引uint32的最低bit
@@ -452,19 +440,13 @@ BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 		{
 			guess_v--;
 			guess_time++;
-			total_guess_time++;
 		}
-		//此后的guess_v就是真实的值
-		printf("total_guess_time:%d guess_time:%d \n",total_guess_time,guess_time);
-		//assert(guess_time<=2);
+		//此后的guess_v就是真实的值		
+		assert(guess_time<=2);
 		
 		uint32 carry = guess_v / BigInt::RADIX;
 		uint32 value = guess_v % BigInt::RADIX;
-		if (carry>0)
-		{
-			int stop;
-			printf("stop.");
-		}
+		
 		Result.AddRadixBits(value,a_begin_idx-b_valid_len);
 		Result.AddRadixBits(carry,a_begin_idx-b_valid_len+1);
 		
@@ -534,7 +516,7 @@ void ExEuclid( BigInt a, BigInt b,BigInt& x,BigInt&y )
 	BigInt q;
 	BigInt tmp = b;
 
-	BigDiv(a,b,q,r);
+	Fast_BigDiv(a,b,q,r);
 
 	b = r;
 	a = tmp;
