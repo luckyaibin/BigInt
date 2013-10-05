@@ -450,8 +450,15 @@ BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 		Result.AddRadixBits(value,a_begin_idx-b_valid_len);
 		Result.AddRadixBits(carry,a_begin_idx-b_valid_len+1);
 		
+		/*
+		a = a - b * ( res << N)
+		  = a - b * ( res * 2^^N)
+		  = a - b * res * 2^^N
+		  = a - 
+		*/
 		//这里carry有可能>=0，要用uint64位的构造函数
-		a = a - b*(BigInt(guess_v)<<(a_begin_idx-b_valid_len)*32);
+		//a = a - b*(BigInt(guess_v)<<(a_begin_idx-b_valid_len)*32);
+		a = a - (b <<(a_begin_idx-b_valid_len)*32) * guess_v;
 
 		a_begin_idx--;
 	}

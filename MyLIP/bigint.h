@@ -187,10 +187,7 @@ struct BigInt
 	//---------
 	         
 	void Mul(const uint32& ui32) ;
-	void Mul(const BigInt& N)
-	{
-
-	}
+	
 	void Add(const uint32& ui32) ;
 	
 	//
