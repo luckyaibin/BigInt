@@ -15,6 +15,7 @@ BigInt operator<<(const BigInt& X,int bits);
 
 int FromString2(BigInt& N,const std::string& numbers);
 BigInt Fast_BigDiv2(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R);
+void ExEuclid2( BigInt a, BigInt b,BigInt& x,BigInt&y );
 
 struct BigInt
 {
@@ -39,6 +40,7 @@ struct BigInt
 
 	friend int FromString2(BigInt& N,const std::string& numbers);
 	friend BigInt Fast_BigDiv2(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R);
+	friend void ExEuclid2( BigInt a, BigInt b,BigInt& x,BigInt&y );
 	
 };
 
