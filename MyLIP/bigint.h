@@ -8,15 +8,15 @@ typedef int int32;
 typedef unsigned long long uint64;
 typedef long long int64;
 
-struct BigInt;
+struct BigUInt;
 //前向声明
-BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R);
-BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R);
-BigInt GCD(const BigInt& X,const BigInt& Y);
-BigInt ExEuc(const BigInt&a,const BigInt& b,BigInt& x,BigInt& y);
-BigInt ExpMod(const BigInt& a,const BigInt& b,const BigInt& m);
+BigUInt BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt &Q,BigUInt&R);
+BigUInt Fast_BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt&Q,BigUInt&R);
+BigUInt GCD(const BigUInt& X,const BigUInt& Y);
+BigUInt ExEuc(const BigUInt&a,const BigUInt& b,BigUInt& x,BigUInt& y);
+BigUInt ExpMod(const BigUInt& a,const BigUInt& b,const BigUInt& m);
 
-void ExEuclid( BigInt a,BigInt b,BigInt& x,BigInt&y );
+void ExEuclid( BigUInt a,BigUInt b,BigUInt& x,BigUInt&y );
 
 //将大数表示为n^32 进制（即0x1 0000 0000）的数组
 
@@ -25,9 +25,9 @@ void ExEuclid( BigInt a,BigInt b,BigInt& x,BigInt&y );
 
 // 0xFFFFFFFF FFFFFFFF == 18446744073709551615 ~= 4294967295.9999999998835846781731**2
 
-struct BigInt
+struct BigUInt
 {
-	BigInt():m_Sign(true)//true 为正，false为负
+	BigUInt():m_Sign(true)//true 为正，false为负
 	{
 		m_bits.resize(1);
 		//if (m_bits.size() == 0)
@@ -36,30 +36,30 @@ struct BigInt
 		//	m_bits.push_back(0);
 		//}
 	}
-	BigInt(const uint32& ui32)
+	BigUInt(const uint32& ui32)
 	{
 		m_bits.push_back(ui32);
 	}
-	BigInt(const uint64& ui64)
+	BigUInt(const uint64& ui64)
 	{
 		uint32 carry = ui64 / RADIX;
 		uint32 v = ui64 % RADIX;
 		m_bits.push_back(v);
 		m_bits.push_back(carry);
 	}
-	BigInt(const char * intstr)
+	BigUInt(const char * intstr)
 	{
 		Reset();
 		FromString(*this,intstr);
 	}
 	
-	BigInt( const BigInt& other)
+	BigUInt( const BigUInt& other)
 	{
 		m_bits = other.m_bits;
 		m_Sign = other.m_Sign;
 	}
 
-	BigInt& operator=(const BigInt& other)
+	BigUInt& operator=(const BigUInt& other)
 	{
 		this->m_bits = other.m_bits;
 		this->m_Sign = other.m_Sign;
@@ -88,15 +88,15 @@ struct BigInt
 	int32 GetNonZeroBitIdx(); //get_non_zero_bit_idx;
 
 	//获取高位第一个不为零的uint32块的索引
-	int32 BigInt::GetNonZeroIdx()const;
+	int32 BigUInt::GetNonZeroIdx()const;
 	//获取从idx_hi,到idx_lo之间的数据构成的BigInt，用于除法的试除
-	BigInt GetBitRangBigInt(int bit_idx_hi,int bit_idx_lo) const;
+	BigUInt GetBitRangBigInt(int bit_idx_hi,int bit_idx_lo) const;
 	//比较大小 
 	/*
 		00000000 00001111 11110000 0000111
 		         00000001 00001110 0011001
 	*/
-	int32 Compare(const BigInt & N) const
+	int32 Compare(const BigUInt & N) const
 	{
 		int32 idx1 = this->ValidLength() - 1;
 		int32 idx2 = N.ValidLength() - 1;
@@ -151,32 +151,32 @@ struct BigInt
 		return result;
 	}
 
-	friend int operator < (const BigInt& v1,const BigInt& v2)
+	friend int operator < (const BigUInt& v1,const BigUInt& v2)
 	{
 		return v1.Compare(v2) == -1;
 	}
 
-	friend int operator == (const BigInt& v1,const BigInt& v2)
+	friend int operator == (const BigUInt& v1,const BigUInt& v2)
 	{
 		return v1.Compare(v2) == 0;
 	}
 
-	friend int operator > (const BigInt& v1,const BigInt& v2)
+	friend int operator > (const BigUInt& v1,const BigUInt& v2)
 	{
 		return v1.Compare(v2) == 1;
 	}
 
-	friend int operator <= (const BigInt& v1,const BigInt& v2)
+	friend int operator <= (const BigUInt& v1,const BigUInt& v2)
 	{
 		return !(v1>v2);
 	}
 
-	friend int operator >= (const BigInt& v1,const BigInt& v2)
+	friend int operator >= (const BigUInt& v1,const BigUInt& v2)
 	{
 		return !(v1<v2);
 	}
 
-	friend int operator !=(const BigInt& v1,const BigInt& v2)
+	friend int operator !=(const BigUInt& v1,const BigUInt& v2)
 	{
 		return !(v1==v2);
 	}
@@ -242,7 +242,7 @@ struct BigInt
 	bool m_Sign;
 
 
-	friend	void FromString(BigInt& N,const std::string& numbers)
+	friend	void FromString(BigUInt& N,const std::string& numbers)
 	{
 		int length = 0;
 		for(;(!numbers.empty())&&numbers[length]!='\0';length++);
@@ -317,9 +317,9 @@ struct BigInt
 			break;
 		}
 	}
-	friend BigInt Add(const BigInt& N1,const BigInt& N2)
+	friend BigUInt Add(const BigUInt& N1,const BigUInt& N2)
 	{
-		BigInt R;
+		BigUInt R;
 		
 
 		uint64 carry=0;
@@ -339,12 +339,12 @@ struct BigInt
 		return R;
 	}
 	
-	friend BigInt operator+(const BigInt& X,const BigInt& Y);
+	friend BigUInt operator+(const BigUInt& X,const BigUInt& Y);
 
 	//N1 > N2,那么N1长度大于等于N2长度
-	friend BigInt Minus(const BigInt& N1,const BigInt& N2)
+	friend BigUInt Minus(const BigUInt& N1,const BigUInt& N2)
 	{
-		BigInt R=N1;
+		BigUInt R=N1;
 		
 		for (int index=0;index<N2.ValidLength();index++)
 		{
@@ -355,7 +355,7 @@ struct BigInt
 		return R;
 	}
 
-	friend BigInt operator-(const BigInt&N1,const BigInt& N2)
+	friend BigUInt operator-(const BigUInt&N1,const BigUInt& N2)
 	{
 		return Minus(N1,N2);
 	}
@@ -370,9 +370,9 @@ struct BigInt
 	 a*d     b*d     c*d
 
 	 */
-	friend  BigInt Mul(const BigInt& N1,const BigInt& N2)
+	friend  BigUInt Mul(const BigUInt& N1,const BigUInt& N2)
 	{
-			BigInt R;
+			BigUInt R;
 			
 			uint32 carry = 0;
 
@@ -407,28 +407,28 @@ struct BigInt
 		return R;
 	};
 
-	friend BigInt operator*(const BigInt& N1,const BigInt& N2)
+	friend BigUInt operator*(const BigUInt& N1,const BigUInt& N2)
 	{
 		return ::Mul(N1,N2);
 	}
 
 
-	friend BigInt Mod(const BigInt& X,const BigInt& M)
+	friend BigUInt Mod(const BigUInt& X,const BigUInt& M)
 	{
-		BigInt q;//商
-		BigInt r;//余
+		BigUInt q;//商
+		BigUInt r;//余
 		Fast_BigDiv(X,M,q,r);
 		return r;
 	}
 
-	friend BigInt operator% (const BigInt&X,const BigInt& Y)
+	friend BigUInt operator% (const BigUInt&X,const BigUInt& Y)
 	{
 		return ::Mod(X,Y);
 	}
 
-	friend BigInt operator>>(const BigInt& X,int bits)
+	friend BigUInt operator>>(const BigUInt& X,int bits)
 	{
-		BigInt result = X,zero;
+		BigUInt result = X,zero;
 
 		if (bits>=X.ValidLength()*4*8)
 		{
@@ -490,9 +490,9 @@ struct BigInt
 	// 11111111000000001111111100000000 11110000
 	//左移一位后:
 	// 11111110000000011111111000000001 11100000
-	friend BigInt operator<<(const BigInt& X,int bits)
+	friend BigUInt operator<<(const BigUInt& X,int bits)
 	{
-		BigInt result=X;
+		BigUInt result=X;
 
 		int complete_ints = bits/32;
 		int remaind = bits%32; //remaind 0~31
@@ -540,18 +540,18 @@ struct BigInt
 	
 	//大数除法：
 	//返回两个大数除法的商，同时Q置为商，R为余数
-	friend BigInt BigDiv(const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R);
-	friend BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R);
-	friend BigInt operator/ (const BigInt& X,const BigInt& Y)
+	friend BigUInt BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt &Q,BigUInt&R);
+	friend BigUInt Fast_BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt&Q,BigUInt&R);
+	friend BigUInt operator/ (const BigUInt& X,const BigUInt& Y)
 	{
-		BigInt Q;
-		BigInt R;
+		BigUInt Q;
+		BigUInt R;
 		return Fast_BigDiv(X,Y,Q,R);
 	}
 
 	//欧几里德算法，求X和Y的最大公约数
-	friend BigInt GCD(const BigInt& X,const BigInt& Y);
+	friend BigUInt GCD(const BigUInt& X,const BigUInt& Y);
 
 	//扩展欧几里德算法，求模反元素
-	friend void ExEuclid(BigInt a, BigInt b,BigInt& x,BigInt&y); 
+	friend void ExEuclid(BigUInt a, BigUInt b,BigUInt& x,BigUInt&y); 
 };

@@ -1,21 +1,21 @@
 #include "bigint.h"
 #include<fstream>
 #include <stdarg.h>
-const  bool BigInt::NeedCarry( uint64 result )
+const  bool BigUInt::NeedCarry( uint64 result )
 {
 	return result>CARDINAL;
 }
 
-int BigInt::Length()const
+int BigUInt::Length()const
 {
 	return m_bits.size();
 }
-int BigInt::ValidLength() const
+int BigUInt::ValidLength() const
 {
 	return (m_bits.size()>0)?(GetNonZeroIdx()+1):(0); 
 }
 
-void BigInt::TrimHiZeros()
+void BigUInt::TrimHiZeros()
 {
 	int v = 0;
 	while ( (v=m_bits[m_bits.size()-1]) == 0 )
@@ -31,7 +31,7 @@ void BigInt::TrimHiZeros()
 
 
 
-void BigInt::AddRadixBits( uint32 val,uint32 pos )
+void BigUInt::AddRadixBits( uint32 val,uint32 pos )
 {
 	if (val==0)
 	{
@@ -58,7 +58,7 @@ void BigInt::AddRadixBits( uint32 val,uint32 pos )
 }
 
 //保证够减
-void BigInt::MinusRadixBits(uint32 val,uint32 pos)
+void BigUInt::MinusRadixBits(uint32 val,uint32 pos)
 {
 	if (val==0)
 	{
@@ -78,7 +78,7 @@ void BigInt::MinusRadixBits(uint32 val,uint32 pos)
 	m_bits[pos] = v;
 }
 
-void BigInt::Mul( const uint32& ui32 ) 
+void BigUInt::Mul( const uint32& ui32 ) 
 {
 	uint64 carry = 0;
 	for (uint32 i=0;i<m_bits.size();i++)
@@ -103,7 +103,7 @@ void BigInt::Mul( const uint32& ui32 )
 	}
 }
 
-void BigInt::Add( const uint32& ui32 )
+void BigUInt::Add( const uint32& ui32 )
 {
 	uint64 carry = 0;
 	//加到最低位
@@ -137,7 +137,7 @@ void BigInt::Add( const uint32& ui32 )
 	}
 }
 
-void BigInt::Dump(const char *fmt,...) const
+void BigUInt::Dump(const char *fmt,...) const
 {
 	static int idx = 0;
 	idx++;
@@ -180,7 +180,7 @@ void BigInt::Dump(const char *fmt,...) const
 	fs.close();
 }
 
-std::string BigInt::ToString() const
+std::string BigUInt::ToString() const
 {
 	std::string numbers;
 
@@ -215,7 +215,7 @@ std::string BigInt::ToString() const
 		char cc = remainder+'0';
 		numbers =  cc + numbers;
 		//开始下一轮
-		BigInt next_round(quotient_str.c_str());
+		BigUInt next_round(quotient_str.c_str());
 		index = 0;
 		curr_number_bits = next_round.m_bits;
 	}
@@ -223,7 +223,7 @@ std::string BigInt::ToString() const
 }
 
 
-int32 BigInt::GetNonZeroBitIdx() /*get_non_zero_bit_idx */
+int32 BigUInt::GetNonZeroBitIdx() /*get_non_zero_bit_idx */
 {
 	int hightest_idx = -1;
 	int len = ValidLength();
@@ -245,7 +245,7 @@ int32 BigInt::GetNonZeroBitIdx() /*get_non_zero_bit_idx */
 RETURN: 
 	return hightest_idx;
 }
-int32 BigInt::GetNonZeroIdx() const
+int32 BigUInt::GetNonZeroIdx() const
 {
 	int hightest_idx = -1;
 	int len = m_bits.size();
@@ -268,14 +268,14 @@ RETURN:
  11110000 00001111 11001100 00110011
  
 */
-BigInt BigInt::GetBitRangBigInt(int bit_idx_hi,int bit_idx_lo) const
+BigUInt BigUInt::GetBitRangBigInt(int bit_idx_hi,int bit_idx_lo) const
 {
 	//assert(bit_idx_hi>=0 && bit_idx_lo>=0 &&"invalid index for GetBitRangeBigInt()!");
 	if ( bit_idx_hi< 0 ||  bit_idx_lo<0 )
 	{
 		printf("stop.");
 	}
-	BigInt res;
+	BigUInt res;
 
 	int highest_bit_idx = this->Length()*32 - 1;// this->GetNonZeroBitIdx();
 
@@ -283,10 +283,10 @@ BigInt BigInt::GetBitRangBigInt(int bit_idx_hi,int bit_idx_lo) const
 	res = (res)>>( (highest_bit_idx-bit_idx_hi) + bit_idx_lo);
 	return res;
 }
-BigInt operator+(const BigInt& X,const BigInt& Y)
+BigUInt operator+(const BigUInt& X,const BigUInt& Y)
 {
-	BigInt Z;
-	BigInt Smaller;
+	BigUInt Z;
+	BigUInt Smaller;
 	uint32 carry=0;
 	int32 xlen = X.GetNonZeroIdx()+1;//X.Length();//
 	int32 ylen = Y.GetNonZeroIdx()+1;//Y.Length();//
@@ -316,12 +316,12 @@ BigInt operator+(const BigInt& X,const BigInt& Y)
 /*
 二进制形式的除法
 */
-BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
+BigUInt BigDiv( const BigUInt& X,const BigUInt& Y,BigUInt &Q,BigUInt&R )
 {
-	BigInt One("1");
-	BigInt Result("0");
-	BigInt a = X;
-	BigInt b = Y;
+	BigUInt One("1");
+	BigUInt Result("0");
+	BigUInt a = X;
+	BigUInt b = Y;
 
 	int32 na = 0;
 	int32 nb = 0;
@@ -335,7 +335,7 @@ BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
 		int diff = na - nb;
 		//a.Dump("a初始值:");
 		//b.Dump("b初始值,猜测偏移diff=%d:",diff);
-		BigInt shift_b = b<<diff;
+		BigUInt shift_b = b<<diff;
 		while (diff>0 && a < shift_b)
 			diff--,shift_b = b<<diff;
 
@@ -394,14 +394,14 @@ BigInt BigDiv( const BigInt& X,const BigInt& Y,BigInt &Q,BigInt&R )
 	     2
 */
 
-BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
+BigUInt Fast_BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt&Q,BigUInt&R)
 {
-	BigInt Result("0");
-	BigInt a = X;
-	BigInt b = Y;
+	BigUInt Result("0");
+	BigUInt a = X;
+	BigUInt b = Y;
 	int adjust_shift = 0;
 	//调整b,让b的最高位 >= RADIX/2
-	while ( b.GetRadixBits(b.GetNonZeroIdx()) < (BigInt::RADIX/2))
+	while ( b.GetRadixBits(b.GetNonZeroIdx()) < (BigUInt::RADIX/2))
 	{
 		b=(b<<1);
 		adjust_shift++;
@@ -426,7 +426,7 @@ BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 	{
 		//从a高位取出比b长度+1个uint32。 最高位索引uit32的最高bit，到低位索引uint32的最低bit
 		//由于a可能是对齐过的，所以a的最高位的uint32可能是0，因此下面很多地方都用了Length，而不是ValidLength
-		BigInt a_part = a.GetBitRangBigInt(a_begin_idx*32+31,(a_begin_idx-b_valid_len)*32);
+		BigUInt a_part = a.GetBitRangBigInt(a_begin_idx*32+31,(a_begin_idx-b_valid_len)*32);
 
 		//取出a的高2位（2个uint32），b的高1位（1个uint32），对商估值
 		uint64 a_part_hi_2 = (uint64)a_part.GetRadixBits(a_part.Length() - 1) << 32 | (uint64)a_part.GetRadixBits(a_part.Length() - 2);
@@ -444,8 +444,8 @@ BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 		//此后的guess_v就是真实的值		
 		assert(guess_time<=2);
 		
-		uint32 carry = guess_v / BigInt::RADIX;
-		uint32 value = guess_v % BigInt::RADIX;
+		uint32 carry = guess_v / BigUInt::RADIX;
+		uint32 value = guess_v % BigUInt::RADIX;
 		
 		Result.AddRadixBits(value,a_begin_idx-b_valid_len);
 		Result.AddRadixBits(carry,a_begin_idx-b_valid_len+1);
@@ -468,12 +468,12 @@ BigInt Fast_BigDiv(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 	return Result;
 }
 //欧几里德算法，求X和Y的最大公约数
-BigInt GCD(const BigInt& X,const BigInt& Y)
+BigUInt GCD(const BigUInt& X,const BigUInt& Y)
 {
-	BigInt Zero("0");
-	BigInt a;
-	BigInt b;
-	BigInt r;
+	BigUInt Zero("0");
+	BigUInt a;
+	BigUInt b;
+	BigUInt r;
 	if (X>Y)
 	{
 		a = X;
@@ -491,7 +491,7 @@ BigInt GCD(const BigInt& X,const BigInt& Y)
 
 	while (!( b == Zero) ) //a=41606343 b=40144455
 	{
-		BigInt tmp = b;
+		BigUInt tmp = b;
 		b = Mod(a,b);
 		a = tmp;
 	}
@@ -511,29 +511,29 @@ BigInt GCD(const BigInt& X,const BigInt& Y)
 
 */
 
-void ExEuclid( BigInt a, BigInt b,BigInt& x,BigInt&y )
+void ExEuclid( BigUInt a, BigUInt b,BigUInt& x,BigUInt&y )
 {
-	BigInt old_a = a;
-	BigInt old_b = b;
+	BigUInt old_a = a;
+	BigUInt old_b = b;
 
 	//r 为 a % b 的模，也是a / b 的余数
 	//q 为 a / b 的商
 	//这里一次性都求出来
-	BigInt r;
-	BigInt q;
-	BigInt tmp = b;
+	BigUInt r;
+	BigUInt q;
+	BigUInt tmp = b;
 
 	Fast_BigDiv(a,b,q,r);
 
 	b = r;
 	a = tmp;
 
-	if (b == BigInt("0"))
+	if (b == BigUInt("0"))
 	{
-		x = BigInt("1");
-		y = BigInt("0");
+		x = BigUInt("1");
+		y = BigUInt("0");
 
-		BigInt tmp = x;
+		BigUInt tmp = x;
 		x = y;
 		y = tmp - q*y;
 		return;
@@ -541,17 +541,17 @@ void ExEuclid( BigInt a, BigInt b,BigInt& x,BigInt&y )
 
 	ExEuclid(a,b,x,y);
 
-	BigInt old_x = x;
+	BigUInt old_x = x;
 	x = y;
 	y = old_x - q*x;
 }
 
-BigInt ExpMod(const BigInt& a,const BigInt& b,const BigInt& m)
+BigUInt ExpMod(const BigUInt& a,const BigUInt& b,const BigUInt& m)
 {
-	BigInt res("1");;
-	BigInt multiplizer = a;
-	BigInt exp = b;
-	BigInt Zero("0");
+	BigUInt res("1");;
+	BigUInt multiplizer = a;
+	BigUInt exp = b;
+	BigUInt Zero("0");
 	while (exp > Zero)
 	{
 		//取出一个整数字节
