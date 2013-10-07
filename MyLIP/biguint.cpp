@@ -14,7 +14,7 @@ int BigUInt::ValidLength() const
 void BigUInt::TrimHiZeros()
 {
 	int v = 0;
-	while ( (v=m_bits[m_bits.size()-1]) == 0 )
+	while (m_bits.size() >=1 && (v=m_bits[m_bits.size()-1]) == 0 )
 	{
 		m_bits.erase(m_bits.begin()+m_bits.size()-1);
 	}
@@ -177,13 +177,25 @@ std::string BigUInt::ToString() const
 	std::string numbers;
 
 	BigUInt Q = *this;
-	uint32  R;
+	BigUInt  R;
 	while(Q>BigUInt("0"))
 	{
-		Q.DivBy10(Q,R);
-		numbers.push_back(R+'0');
+		BigDiv(Q,BigUInt("10"),Q,R);
+		numbers.insert(numbers.begin(),R.m_bits[0]+'0');
+		std::string b_right = "114381625757888867669235779976146612010218296721242362562561842935706935245733897830597123563958705058989075147599290026879543541";
+		char a = numbers[0];
+		char b = b_right[b_right.size() - numbers.size()];
+
+		if (numbers == "3563958705058989075147599290026879543541")
+		{
+			printf("next step will be wrong..");
+		}
+		if (a!=b)
+		{
+			printf("stop..");
+		}
 	}
-	std::reverse(numbers.begin(),numbers.end());
+	//std::reverse(numbers.begin(),numbers.end());
 	
 	return numbers;
 }
@@ -236,6 +248,10 @@ RETURN:
 */
 BigUInt BigUInt::GetBitRangBigInt(int bit_idx_hi,int bit_idx_lo) const
 {
+	if( !(bit_idx_hi>=0 && bit_idx_lo>=0))
+	{
+		printf("stop.");
+	}
 	assert(bit_idx_hi>=0 && bit_idx_lo>=0 &&"invalid index for GetBitRangeBigInt()!");
 	
 	BigUInt res;
@@ -441,7 +457,7 @@ BigUInt operator% (const BigUInt&X,const BigUInt& M)
 {
 	BigUInt q;//商
 	BigUInt r;//余
-	Fast_BigDiv(X,M,q,r);
+	BigDiv(X,M,q,r);
 	return r;
 }
 
@@ -484,7 +500,6 @@ BigUInt operator>>( const BigUInt& X,int bits )
 
 		result.SetRadixBits(new_v,j);
 	}
-	result.TrimHiZeros();
 	return result;
 }
 
@@ -515,7 +530,6 @@ BigUInt operator<<( const BigUInt& X,int bits )
 			result.SetRadixBits(new_hi_v,idx);
 		}
 	}
-	result.TrimHiZeros();
 	return result;
 }
 /*
@@ -604,7 +618,9 @@ BigUInt Fast_BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt&Q,BigUInt&R)
 {
 	BigUInt Result("0");
 	BigUInt a = X;
+	a.TrimHiZeros();
 	BigUInt b = Y;
+	b.TrimHiZeros();
 	int adjust_shift = 0;
 	//调整b,让b的最高位 >= RADIX/2
 	while ( b.GetRadixBits(b.GetNonZeroIdx()) < (BigUInt::RADIX/2))

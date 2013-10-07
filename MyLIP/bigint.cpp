@@ -1,6 +1,88 @@
 #include "bigint.h"
+#include<algorithm>
 
 
+std::string BigInt::ToString() const
+{
+	std::string numbers;
+
+	BigUInt Q = this->m_value;
+	BigUInt  R;
+	while(Q>BigUInt("0"))
+	{
+		Fast_BigDiv(Q,BigUInt("10"),Q,R);
+		//Q.DivBy10(Q,R);
+		numbers.push_back(R.GetRadixBits(0)+'0');
+	}
+	if (this->m_sign==1)
+	{
+		numbers.push_back('-');
+	}
+	std::reverse(numbers.begin(),numbers.end());
+
+	return numbers;
+}
+
+int operator<(const BigInt& v1,const BigInt& v2)
+{
+	//都是0在这里判断
+	if (v1==v2)
+	{
+		return 0;
+	}
+	else if (v1.m_sign > v2.m_sign)
+	{
+		return 1;
+	}
+	else if (v1.m_sign < v2.m_sign)
+	{
+		return 0;
+	}
+	else if (v1.m_sign == v2.m_sign && v1.m_sign == 0)//都是正数
+	{
+		return v1.m_value < v2.m_value;
+	}
+	else if (v1.m_sign == v2.m_sign && v1.m_sign == 1)//都是负数
+	{
+		return v1.m_value > v2.m_value;
+	}
+	else
+	{
+		assert(0&&"never here!!!");
+	}
+}
+int operator==(const BigInt& v1,const BigInt& v2)
+{
+	//绝对值都为0
+	if (v1.m_value == BigUInt("0") && v2.m_value == BigUInt("0"))
+	{
+		return 1;
+	}
+	else if(v1.m_sign == v2.m_sign && v1.m_value == v2.m_value)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+int operator>(const BigInt& v1,const BigInt& v2)
+{
+	return (!(v1==v2)) && (!(v1<v2));
+}
+int operator<=(const BigInt& v1,const BigInt& v2)
+{
+	return !(v1>v2);
+}
+int operator>=(const BigInt& v1,const BigInt& v2)
+{
+	return !(v1<v2);
+}
+int operator!=(const BigInt& v1,const BigInt& v2)
+{
+	return !(v1==v2);
+}
 
 BigInt operator+(const BigInt& N1,const BigInt& N2)
 {
@@ -140,6 +222,10 @@ void ExEuclid2( BigInt a, BigInt b,BigInt& x,BigInt&y )
 	BigInt q;
 	BigInt tmp = b;
 
+	if(a.m_value.Length() == 4 && a.m_value.ValidLength() == 3)
+	{
+		printf("stop.");
+	}
 	Fast_BigDiv2(a,b,q,r);
 
 	b = r;
@@ -156,9 +242,41 @@ void ExEuclid2( BigInt a, BigInt b,BigInt& x,BigInt&y )
 		return;
 	}
 
-	ExEuclid(a,b,x,y);
+	ExEuclid2(a,b,x,y);
 
 	BigInt old_x = x;
 	x = y;
 	y = old_x - q*x;
+}
+
+
+//欧几里德算法，求X和Y的最大公约数
+BigInt GCD2(const BigInt& X,const BigInt& Y)
+{
+	BigInt Zero("0");
+	BigInt a;
+	BigInt b;
+	BigInt r;
+	if (X>Y)
+	{
+		a = X;
+		b = Y;
+	}
+	else if (X<Y)
+	{
+		a = Y;
+		b = X;
+	}
+	else //相等，直接返回
+	{
+		return X;
+	}
+
+	while (!( b == Zero) ) //a=41606343 b=40144455
+	{
+		BigInt tmp = b;
+		b =  a%b;
+		a = tmp;
+	}
+	return a;		
 }
