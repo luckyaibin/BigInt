@@ -180,7 +180,7 @@ std::string BigUInt::ToString() const
 	BigUInt  R;
 	while(Q>BigUInt("0"))
 	{
-		BigDiv(Q,BigUInt("10"),Q,R);
+		Fast_BigDiv(Q,BigUInt("10"),Q,R);
 		numbers.insert(numbers.begin(),R.m_bits[0]+'0');
 		std::string b_right = "114381625757888867669235779976146612010218296721242362562561842935706935245733897830597123563958705058989075147599290026879543541";
 		char a = numbers[0];
@@ -457,7 +457,7 @@ BigUInt operator% (const BigUInt&X,const BigUInt& M)
 {
 	BigUInt q;//ษฬ
 	BigUInt r;//ำเ
-	BigDiv(X,M,q,r);
+	Fast_BigDiv(X,M,q,r);
 	return r;
 }
 
@@ -840,10 +840,26 @@ int FromString( BigUInt& N,const std::string& numbers_ )
 	{
 		base = 16;
 	}
+	else if (numbers[0]== 'b' || numbers[0]== 'B')
+	{
+		base = 2;
+	}
 
 	//N.Dump();
 	switch (base)
 	{
+	case 2:
+		{
+			for (int i=1;i<length;i++)
+			{
+				int n = numbers[i]-'0';
+				N.Mul(2);
+				//N.Dump();
+				N.Add(n);
+			}
+		}
+		break;
+
 	case 10:
 		{
 			for (int i=0;i<length;i++)

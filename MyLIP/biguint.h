@@ -59,10 +59,12 @@ struct BigUInt
 	BigUInt()
 	{
 		m_bits.resize(1);
+		FormRealBits();
 	}
 	BigUInt(const uint32& ui32)
 	{
 		m_bits.push_back(ui32);
+		FormRealBits();
 	}
 	BigUInt(const uint64& ui64)
 	{
@@ -70,21 +72,25 @@ struct BigUInt
 		uint32 v = ui64 % RADIX;
 		m_bits.push_back(v);
 		m_bits.push_back(carry);
+		FormRealBits();
 	}
 	BigUInt(const char * intstr)
 	{
 		FromString(*this,intstr);
+		FormRealBits();
 	}
 	
 	BigUInt( const BigUInt& other)
 	{
 		m_bits = other.m_bits;
+		FormRealBits();
 	}
 
 	BigUInt& operator=(const BigUInt& other)
 	{
 		this->m_bits = other.m_bits;
 		return *this;
+		FormRealBits();
 	}
 	std::string ToString() const;
 
@@ -179,11 +185,24 @@ struct BigUInt
 	friend void ExEuclid(BigUInt a, BigUInt b,BigUInt& x,BigUInt&y); 
 	
 private:
+	void FormRealBits()
+	{
+		for (int i= 0;i<=Length()*32-1;i++)
+		{
+			m_real_bits.insert(m_real_bits.begin(),'0'+GetBitByIdx(i));
+			if (m_real_bits.size() % 32 == 0)
+			{
+				m_real_bits.insert(m_real_bits.begin(),',' );
+			}
+		}
+		
+	}
 	typedef std::vector<uint32> BigIntBitType;
-
+	std::string   m_real_bits;
 	//Î»ÖÃ:  4 3 2 1 0
 	//Êý×Ö£º| e...e | d...d | c...c | b...b | a...a |
 	BigIntBitType m_bits;
+	
 
 	const static uint64 RADIX =		0x0000000100000000;
 	const static uint64 CARDINAL =	0x00000000ffffffff;
