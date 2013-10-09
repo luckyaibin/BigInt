@@ -516,20 +516,35 @@ BigUInt operator<<( const BigUInt& X,int bits )
 		result.m_bits.insert(result.m_bits.begin(),complete_ints,0);
 	}
 	//移动零散的bit:
-	uint32 hi_mask = (remaind==0) ? 0 : (0xffffffff << (32 - remaind)); //因为remaind为0时，值v左移32位仍然是v
-	uint32 lo_mask = 0xffffffff >> remaind;
+	uint32 lo_mask = 0xffffffff << (32 - remaind);  
+	uint32 hi_mask = 0xffffffff >> remaind;
 
-	for(int idx = result.ValidLength();remaind && idx>=0;idx--)
+	uint32 old_low_v = 0;
+	int valid_len = result.ValidLength();
+	for(int idx=0;remaind && idx<=valid_len;idx++)
 	{
 		uint32 hi_v = result.GetRadixBits(idx);
-		uint32 lo_v = result.GetRadixBits(idx-1);
-
-		uint32 new_hi_v = ( (hi_v & lo_mask) << remaind ) | ( ( lo_v & hi_mask ) >> (32 - remaind) );
-		if (new_hi_v) //不随意添加额外的空白uint32
+		uint32 lo_v = old_low_v;//result.GetRadixBits(idx-1);
+		//uint32 new_hi_v = ( (hi_v & lo_mask) << remaind ) | ( ( lo_v & hi_mask ) >> (32 - remaind) );
+		uint32 new_hi_v = (hi_v & hi_mask)<<remaind | (lo_v & lo_mask )>>(32-remaind);
+		if (idx<valid_len || new_hi_v)
 		{
 			result.SetRadixBits(new_hi_v,idx);
 		}
+		old_low_v= hi_v;
 	}
+
+	//for(int idx = result.ValidLength();remaind && idx>=0;idx--)
+	//{
+	//	uint32 hi_v = result.GetRadixBits(idx);
+	//	uint32 lo_v = result.GetRadixBits(idx-1);
+
+	//	uint32 new_hi_v = ( (hi_v & lo_mask) << remaind ) | ( ( lo_v & hi_mask ) >> (32 - remaind) );
+	//	if (idx < result.ValidLength() ) //不在最高位随意添加额外的空白uint32,最低位的空白
+	//	{
+	//		result.SetRadixBits(new_hi_v,idx);
+	//	}
+	//}
 	return result;
 }
 /*
@@ -626,6 +641,7 @@ BigUInt Fast_BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt&Q,BigUInt&R)
 	while ( b.GetRadixBits(b.GetNonZeroIdx()) < (BigUInt::RADIX/2))
 	{
 		b=(b<<1);
+		b.FormRealBits();
 		adjust_shift++;
 	}
 	//调整b的同时，也要调整a

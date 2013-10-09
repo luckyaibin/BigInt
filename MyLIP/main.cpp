@@ -257,6 +257,14 @@ void euclid(int a,int b)
 }
 int main()
 {
+	BigUInt test;
+	test.SetRadixBits(2147483648,0);
+	test.SetRadixBits(1,1);
+	test.FormRealBits();
+	BigUInt test2;
+	test2 = test << 1;
+	test2.FormRealBits();
+
 	BigUInt rsa_a = "3490529510847650949147849619903898133417764638493387843990820577";
 	BigUInt rsa_b = "32769132993266709549961988190834461413177642967992942539798288533";	
 	BigUInt rsa_129 = "114381625757888867669235779976146612010218296721242362562561842935706935245733897830597123563958705058989075147599290026879543541";
@@ -267,10 +275,13 @@ int main()
 
 	BigUInt  divisor = "10000000000";
 
+	
 	BigUInt Q1,R1;
-	BigUInt Q1_Right = "20000000000";
-	BigDiv(rsa_129_binary,divisor,Q1,R1);
 
+	Fast_BigDiv(rsa_129,rsa_a,Q1,R1);
+
+	DumpBits(Q1,"Q1::::");
+	DumpBits(rsa_b,"rsa_b:::: %s",rsa_b.ToString().c_str());
 
 	return 0;
 }

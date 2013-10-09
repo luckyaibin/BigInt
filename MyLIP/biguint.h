@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <assert.h>
+#include <algorithm>
 
 typedef unsigned int uint32;
 typedef int int32;
@@ -185,12 +186,32 @@ struct BigUInt
 	friend void ExEuclid(BigUInt a, BigUInt b,BigUInt& x,BigUInt&y); 
 	
 private:
+
+	struct len
+	{
+		len(){ _01_=0;}
+		int operator()(char c)
+		{
+			if (c == '0' || c == '1')
+			{
+				_01_++;
+				return _01_;
+			}
+		}
+		int _01_;
+	};
+
+public:
 	void FormRealBits()
 	{
+		m_real_bits.clear();
 		for (int i= 0;i<=Length()*32-1;i++)
 		{
 			m_real_bits.insert(m_real_bits.begin(),'0'+GetBitByIdx(i));
-			if (m_real_bits.size() % 32 == 0)
+			 
+			len L = std::for_each(m_real_bits.begin(),m_real_bits.end(),len());
+			int l = L._01_;
+			if(l %32 == 0) // (m_real_bits.size() % 32 == 0)
 			{
 				m_real_bits.insert(m_real_bits.begin(),',' );
 			}
