@@ -60,12 +60,10 @@ struct BigUInt
 	BigUInt()
 	{
 		m_bits.resize(1);
-		FormRealBits();
 	}
 	BigUInt(const uint32& ui32)
 	{
 		m_bits.push_back(ui32);
-		FormRealBits();
 	}
 	BigUInt(const uint64& ui64)
 	{
@@ -73,18 +71,15 @@ struct BigUInt
 		uint32 v = ui64 % RADIX;
 		m_bits.push_back(v);
 		m_bits.push_back(carry);
-		FormRealBits();
 	}
 	BigUInt(const char * intstr)
 	{
 		FromString(*this,intstr);
-		FormRealBits();
 	}
 	
 	BigUInt( const BigUInt& other)
 	{
 		m_bits = other.m_bits;
-		FormRealBits();
 	}
 
 	BigUInt& operator=(const BigUInt& other)

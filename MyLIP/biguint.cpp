@@ -641,7 +641,6 @@ BigUInt Fast_BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt&Q,BigUInt&R)
 	while ( b.GetRadixBits(b.GetNonZeroIdx()) < (BigUInt::RADIX/2))
 	{
 		b=(b<<1);
-		b.FormRealBits();
 		adjust_shift++;
 	}
 	//调整b的同时，也要调整a
