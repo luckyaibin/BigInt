@@ -24,10 +24,24 @@ Montgomery Modular Method*/
 BigUInt MMM(const BigUInt &a,const BigUInt &b,const BigUInt &m)
 {
 	BigUInt res;
+	
+	int bit_len = m.GetNonZeroBitIdx()+1;
+	BigUInt R="1";
+	R = R << bit_len;
+
 
 
 
 	return res;
+}
+//蒙哥马利模乘,X 和Y 为X0 Y0 关于R的模N剩余
+BigUInt MonPro(const BigUInt&X,const BigUInt& Y,const BigUInt&N,const BigUInt&R,const BigUInt & N_ )
+{
+	BigUInt D = X*Y;
+	BigUInt q;
+	BigUInt __NOTHING;
+	Fast_BigDiv(D*N_,R,__NOTHING,q);
+	
 }
 
 /*
