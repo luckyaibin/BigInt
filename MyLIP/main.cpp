@@ -1,48 +1,13 @@
 #include "biguint.h"
 #include "bigint.h"
-
-/* a * b % c,such as 789098 × 123456 ÷ 1000000
+#include "algorithm.h"
  
-*/
-uint64 mont_a_mul_b_mod_c(uint64 a,uint64 b,uint64 c)
-{
-	
-}
-
-int montgomery_modular(uint64 a,uint64 b,uint64 m)
-{
-	uint64 res = 0;
-
-
-	return res;
-}
 
 /*
 http://alicebob.cryptoland.net/understanding-the-montgomery-reduction-algorithm/
 http://en.wikipedia.org/wiki/Montgomery_reduction
 Montgomery Modular Method*/
-BigUInt MMM(const BigUInt &a,const BigUInt &b,const BigUInt &m)
-{
-	BigUInt res;
-	
-	int bit_len = m.GetNonZeroBitIdx()+1;
-	BigUInt R="1";
-	R = R << bit_len;
 
-
-
-
-	return res;
-}
-//蒙哥马利模乘,X 和Y 为X0 Y0 关于R的模N剩余
-BigUInt MonPro(const BigUInt&X,const BigUInt& Y,const BigUInt&N,const BigUInt&R,const BigUInt & N_ )
-{
-	BigUInt D = X*Y;
-	BigUInt q;
-	BigUInt __NOTHING;
-	Fast_BigDiv(D*N_,R,__NOTHING,q);
-	
-}
 
 /*
 	int a = 7;
@@ -71,7 +36,7 @@ BigUInt MonPro(const BigUInt&X,const BigUInt& Y,const BigUInt&N,const BigUInt&R,
 http://blog.csdn.net/hkdgjqr/article/details/5381292 
 http://blog.csdn.net/hkdgjqr/article/details/5381028
 */
-int modular_exp(int a,int b,int m=0)
+int modular_exp(int a,int b,int m=1)
 {
 	int res = 1;
 	int multiplier = a;
@@ -299,8 +264,14 @@ void euclid(int a,int b)
 	g_x = g_y;
 	g_y = old_x - (old_a/old_b)*g_y;
 }
-int main()
+int main___()
 {
+	int aa=37;
+	int bb=17;
+	int xx;
+	int yy;
+	ex_euclid(aa,bb,xx,yy);
+
 	uint64 a=9,b=9999999999999999,m=121;
 	uint64 res = modular_exp(a,b,m);
 	BigUInt test;
