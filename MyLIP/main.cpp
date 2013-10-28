@@ -2,6 +2,8 @@
 #include "bigint.h"
 #include "algorithm.h"
  
+ // online compute for EEA http://bilhamil.com/cryptoapps/ExtendedEuclideanAlgorithm.html
+ //http://www.mathcelebrity.com/euclidalgo.php?num1t=12&num2t=3&pl=Euclids+Extended+Algorithm
 
 /*
 http://alicebob.cryptoland.net/understanding-the-montgomery-reduction-algorithm/
