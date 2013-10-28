@@ -45,6 +45,10 @@ void ExEuclid( BigUInt a,BigUInt b,BigUInt& x,BigUInt&y );
 //求模幂：a^b % m
 BigUInt ExpMod(const BigUInt& a,const BigUInt& b,const BigUInt& m);
 
+//Montgomery 算法计算模幂: a^b % m
+BigUInt MExpMod(const BigUInt&a,const BigUInt&b,const BigUInt& m);
+
+
 //求幂
 BigUInt Exp(const BigUInt& a,const BigUInt& b);
 

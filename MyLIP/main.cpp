@@ -1,5 +1,14 @@
 #include "biguint.h"
 #include "bigint.h"
+#include "algorithm.h"
+ 
+
+/*
+http://alicebob.cryptoland.net/understanding-the-montgomery-reduction-algorithm/
+http://en.wikipedia.org/wiki/Montgomery_reduction
+Montgomery Modular Method*/
+
+
 /*
 	int a = 7;
 	int b = 11; 1011
@@ -27,7 +36,7 @@
 http://blog.csdn.net/hkdgjqr/article/details/5381292 
 http://blog.csdn.net/hkdgjqr/article/details/5381028
 */
-int modular_exp(int a,int b,int m=0)
+int modular_exp(int a,int b,int m=1)
 {
 	int res = 1;
 	int multiplier = a;
@@ -255,8 +264,16 @@ void euclid(int a,int b)
 	g_x = g_y;
 	g_y = old_x - (old_a/old_b)*g_y;
 }
-int main()
+int main___()
 {
+	int aa=37;
+	int bb=17;
+	int xx;
+	int yy;
+	ex_euclid(aa,bb,xx,yy);
+
+	uint64 a=9,b=9999999999999999,m=121;
+	uint64 res = modular_exp(a,b,m);
 	BigUInt test;
 	test.SetRadixBits(2147483648,0);
 	test.SetRadixBits(1,1);

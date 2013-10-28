@@ -172,6 +172,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\algorithm.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\bigint.cpp"
 				>
 			</File>
@@ -189,6 +193,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\algorithm.h"
+				>
+			</File>
 			<File
 				RelativePath=".\bigint.h"
 				>

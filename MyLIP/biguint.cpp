@@ -807,6 +807,16 @@ BigUInt ExpMod(const BigUInt& a,const BigUInt& b,const BigUInt& m)
 	return res;
 }
 
+BigUInt MExpMod(const  BigUInt&a,const BigUInt&b,const BigUInt& m)
+{
+	BigUInt res;
+
+
+	return res; 
+};
+
+
+
 
 BigUInt Exp(const BigUInt& a,const BigUInt& b)
 {
