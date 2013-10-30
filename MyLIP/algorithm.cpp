@@ -135,17 +135,17 @@ int ModExp(int M,int e,int r,int n)//n is odd
 {
 	int r$,n$;
 	ex_euclid(r,n,r$,n$);//16*-4  + 13*5 = 1   ->>>   16*9 - 13* 11 =  144 - 143 = 1
-
+	
+	//因为扩展欧几里得算法求出来的不一定满足 r*r$ - n*n$ = 1,并且
+	while (r$ < 0)
+	{
+		r$ = r$ + n;
+	}
+	n$ = (r*r$ - 1) / n;
 	//计算第一次
-	int old_x = r$;
-	r$ = n$;
-	n$ = r - (r/n)*n$;
-
-	r$=9;
-	n$=11;
 	int M_ = M*r % n;
 	int x_ = 1*r % n;
-	int nn = n;
+	int nn = n;//13 == 1101
 	int len = 0;
 
 	while (nn)
@@ -153,10 +153,11 @@ int ModExp(int M,int e,int r,int n)//n is odd
 		nn = nn >> 1;
 			len++;
 	}
-	while (--len)
+	while (len--)
 	{
 		x_ = MonPro(x_,x_,r,n,n$);
-		if ((n>>len)&1)
+		int bit = n>>len;
+		if (bit & 1)
 		{
 			x_ = MonPro(M_,x_,r,n,n$);
 		}
