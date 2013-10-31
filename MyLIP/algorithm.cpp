@@ -1,5 +1,43 @@
 #include "algorithm.h"
 
+
+BigInt ModExp(const BigInt& M,const BigInt& e,const BigInt& r,const BigInt& n)//n is odd
+{
+	BigInt r$,n$;
+	ex_euclid(r,n,r$,n$);//16*-4  + 13*5 = 1   ->>>   16*9 - 13* 11 =  144 - 143 = 1
+
+	//因为扩展欧几里得算法求出来的不一定满足 r*r$ - n*n$ = 1,并且
+	while (r$ < 0)
+	{
+		r$ = r$ + n;
+	}
+	n$ = (r*r$ - 1) / n;
+	//计算第一次
+	BigInt M_ = M*r % n;
+	BigInt x_ = 1*r % n;
+	BigInt ee = e;//13 == 1101  1010 == 10
+	BigInt len = 0;
+
+	while (ee)
+	{
+		ee = ee >> 1;
+		len++;
+	}
+
+	while (--len>=0)
+	{
+		x_ = MonPro(x_,x_,r,n,n$);
+		int bit = e>>len;
+		if (bit & 1)
+		{
+			x_ = MonPro(M_,x_,r,n,n$);
+		}
+	}
+	x_ = MonPro(x_,1,r,n,n$);
+	return x_;
+}
+
+
 //get the index bit of Number,1 or 0
 int GetIndexBit(int index,int Number)
 {
@@ -145,23 +183,23 @@ int ModExp(int M,int e,int r,int n)//n is odd
 	//计算第一次
 	int M_ = M*r % n;
 	int x_ = 1*r % n;
-	int nn = n;//13 == 1101
+	int ee = e;//13 == 1101  1010 == 10
 	int len = 0;
 
-	while (nn)
+	while (ee)
 	{
-		nn = nn >> 1;
+		ee = ee >> 1;
 			len++;
 	}
-	while (len--)
+
+	while (--len>=0)
 	{
 		x_ = MonPro(x_,x_,r,n,n$);
-		int bit = n>>len;
+		int bit = e>>len;
 		if (bit & 1)
 		{
 			x_ = MonPro(M_,x_,r,n,n$);
 		}
-		
 	}
 	x_ = MonPro(x_,1,r,n,n$);
 	return x_;
@@ -198,14 +236,11 @@ int test_gcd(int a,int b)
 int main()
 {
 	int gcd_v = test_gcd(24,24);
-	int a = 7,b=10,n=13; //a*b mod n = 14
+	int a = 7,b=109999999,n=13; //a*b mod n = 14
 	int r = GetR(n);
 	int rr = r;
 	int len = 0;
 	
-
-	//int v = ModMul(a,b,r,n);
-	//int vv = ModMul2(a,b,r,n);
 	int vvv = ModExp(a,b,r,n);
 	int vvvv = modular_exp_test(a,b,n);
 	return 0;
