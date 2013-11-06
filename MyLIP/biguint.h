@@ -35,6 +35,8 @@ BigUInt operator<<(const BigUInt& X,int bits);
 //返回两个大数除法的商，同时Q置为商，R为余数
 BigUInt BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt &Q,BigUInt&R);
 BigUInt Fast_BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt&Q,BigUInt&R);
+//除以2**N形式的数。主要用于蒙哥马利算法中。
+BigUInt BigDiv2N(const BigUInt&X,const BigUInt& Y,BigUInt&Q,BigUInt&R);
 
 //欧几里德算法，求X和Y的最大公约数
 BigUInt GCD(const BigUInt& X,const BigUInt& Y);
@@ -107,7 +109,7 @@ struct BigUInt
 	void Reset();
 	
 	//获得最高为1的比特的索引 N N-1 ... 3 2 1 0
-	int32 GetNonZeroBitIdx(); //get_non_zero_bit_idx;
+	int32 GetNonZeroBitIdx() const; //get_non_zero_bit_idx;
 
 	//获取高位第一个不为零的uint32块的索引
 	int32 GetNonZeroIdx()const;
@@ -179,6 +181,7 @@ struct BigUInt
 	
 	friend BigUInt BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt &Q,BigUInt&R);
 	friend BigUInt Fast_BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt&Q,BigUInt&R);
+	friend BigUInt BigDiv2N(const BigUInt&X,const BigUInt& Y,BigUInt&Q,BigUInt&R);
 	
 	friend BigUInt GCD(const BigUInt& X,const BigUInt& Y);
 

@@ -210,6 +210,15 @@ BigInt Fast_BigDiv2(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R)
 }
 
 
+BigInt BigDiv2N2(const BigInt&X,const BigInt& Y,BigInt&Q,BigInt&R)
+{
+	BigDiv2N(X.m_value,Y.m_value,Q.m_value,R.m_value);
+	Q.m_sign = X.m_sign ^ Y.m_sign;
+	R.m_sign = X.m_sign;
+	return Q;
+}
+
+
 void ExEuclid2( BigInt a, BigInt b,BigInt& x,BigInt&y )
 {
 	BigInt old_a = a;

@@ -1,24 +1,40 @@
 #include "algorithm.h"
 
+BigInt MonPro(const BigInt&a,const BigInt& b,const BigInt& r,const BigInt&n,const BigInt& n$)
+{
+	BigInt t = a*b;
+	/*BigInt m = t*n$ % r; //蒙哥马利算法的精髓就是这一行和下一行。不需要过多的计算就可以进行，因为r是10...0形式， %r 或 /r 的计算超级容易！
+	BigInt u = (t+m*n)/r;  //下面是对这两行代码经过改造成2进制的取模和除法
+	*/
+	BigInt m,u;
+	BigInt __;
+	BigDiv2N2(t*n$,r,__,m);
+	BigDiv2N2((t+m*n),r,u,__);
+	
+	if (u>=n)
+		return u-n;
+	else
+		return u;	
+}
 
 BigInt ModExp(const BigInt& M,const BigInt& e,const BigInt& r,const BigInt& n)//n is odd
 {
 	BigInt r$,n$;
-	ex_euclid(r,n,r$,n$);//16*-4  + 13*5 = 1   ->>>   16*9 - 13* 11 =  144 - 143 = 1
+	ExEuclid2(r,n,r$,n$);//16*-4  + 13*5 = 1   ->>>   16*9 - 13* 11 =  144 - 143 = 1
 
 	//因为扩展欧几里得算法求出来的不一定满足 r*r$ - n*n$ = 1,并且
-	while (r$ < 0)
+	while (r$ < BigInt("0"))
 	{
 		r$ = r$ + n;
 	}
-	n$ = (r*r$ - 1) / n;
+	n$ = (r*r$ - BigInt("1")) / n;
 	//计算第一次
 	BigInt M_ = M*r % n;
-	BigInt x_ = 1*r % n;
+	BigInt x_ = BigInt("1")*r % n;
 	BigInt ee = e;//13 == 1101  1010 == 10
-	BigInt len = 0;
+	int len = 0;
 
-	while (ee)
+	while (ee>BigInt("0"))
 	{
 		ee = ee >> 1;
 		len++;
@@ -27,13 +43,14 @@ BigInt ModExp(const BigInt& M,const BigInt& e,const BigInt& r,const BigInt& n)//
 	while (--len>=0)
 	{
 		x_ = MonPro(x_,x_,r,n,n$);
-		int bit = e>>len;
-		if (bit & 1)
+		BigInt tmp = e>>len;
+		int bit = tmp.m_value.GetRadixBits(0);
+		if (bit & 1)//e的 e>>len是不是1
 		{
 			x_ = MonPro(M_,x_,r,n,n$);
 		}
 	}
-	x_ = MonPro(x_,1,r,n,n$);
+	x_ = MonPro(x_,BigInt("1"),r,n,n$);
 	return x_;
 }
 
@@ -64,6 +81,18 @@ int other_gcd(int a,int b,int&x,int &y)
 	x=y;
 	y=t-(a/b)*y;  //不明处2
 	return d;
+}
+// 11001
+int rabin_miller(int n)
+{
+	int m = n-1;
+	int j = 0;
+	while(0==(m&1))
+	{
+		m = m >> 1;
+		j++;
+	}
+	return m;
 }
 
 /*
@@ -142,6 +171,8 @@ int MonPro( int a,int b,int r,int n,int n$ )
 	else
 		return u;
 }
+
+
 //r 128 n 97 r$ 25 n$ 33
 
 int ModMul( int a,int b,int r,int n )
@@ -235,6 +266,9 @@ int test_gcd(int a,int b)
 }
 int main()
 {
+	rabin_miller(25);
+	BigInt QQ,RR;
+	BigDiv2N2(BigInt("7"),BigInt("2"),QQ,RR);
 	int gcd_v = test_gcd(24,24);
 	int a = 7,b=109999999,n=13; //a*b mod n = 14
 	int r = GetR(n);
@@ -243,5 +277,17 @@ int main()
 	
 	int vvv = ModExp(a,b,r,n);
 	int vvvv = modular_exp_test(a,b,n);
+
+	BigInt A = "817263847623465716523745273645781652376548176523874658162537846518726354";
+	BigInt B = "76981762398764918762398576298376495876198237645987263478562398475";
+	BigInt C = "87619823764598726349865981763948765928364985762198376498576234986598768761987";
+	
+	BigInt R = BigInt("1");
+	while (R < C)
+	{
+		R=R<<1;
+	}
+	BigInt Result = ModExp(A,B,R,C);
+	DumpBits(Result.m_value,"结果:");
 	return 0;
 }

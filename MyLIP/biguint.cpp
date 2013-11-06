@@ -201,7 +201,7 @@ std::string BigUInt::ToString() const
 }
 
 
-int32 BigUInt::GetNonZeroBitIdx() /*get_non_zero_bit_idx */
+int32 BigUInt::GetNonZeroBitIdx() const /*get_non_zero_bit_idx */
 {
 	int hightest_idx = -1;
 	int len = ValidLength();
@@ -703,6 +703,34 @@ BigUInt Fast_BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt&Q,BigUInt&R)
 	Q = Result;
 	R = a>>adjust_shift;
 	return Result;
+}
+BigUInt BigDiv2N(const BigUInt&X,const BigUInt& Y,BigUInt&Q,BigUInt&R)
+{
+	/*
+	e.g
+	X: 1010100111101 index = 12
+	Y:      10000000 :index=7 
+	*/
+	int bit_idx = Y.GetNonZeroBitIdx();
+	Q = X>>bit_idx;
+	
+	int complete_int = (1+bit_idx) / 32;
+	int remaind_bits = (1+bit_idx) % 32;
+	for(int i=0;i<complete_int;i++)
+	{
+		R.SetRadixBits(X.GetRadixBits(i),i);
+	}
+	if (remaind_bits)
+	{
+		//1000 0000 0000 0000 0000 0000 0000 0001
+		uint32 v = Y.GetRadixBits(complete_int);
+		uint32 mask = v-1;
+		uint32 vv = X.GetRadixBits(complete_int);
+		vv = vv & mask;
+		R.SetRadixBits(vv,complete_int);
+	}
+
+	return Q;
 }
 //欧几里德算法，求X和Y的最大公约数
 BigUInt GCD(const BigUInt& X,const BigUInt& Y)
