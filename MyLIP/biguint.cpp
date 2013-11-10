@@ -547,6 +547,12 @@ BigUInt operator<<( const BigUInt& X,int bits )
 	//}
 	return result;
 }
+BigUInt operator&(const BigUInt&X,uint32 mask)
+{
+	uint32 v = X.GetRadixBits(0);
+	v = v & mask;
+	return BigUInt(v);
+}
 /*
 二进制形式的除法
 */

@@ -30,6 +30,7 @@ BigUInt operator/ (const BigUInt& X,const BigUInt& Y);
 BigUInt operator%(const BigUInt& X,const BigUInt& M);
 BigUInt operator>>(const BigUInt& X,int bits);
 BigUInt operator<<(const BigUInt& X,int bits);
+BigUInt operator&(const BigUInt&X,uint32 mask);
 
 //大数除法：
 //返回两个大数除法的商，同时Q置为商，R为余数
@@ -177,7 +178,7 @@ struct BigUInt
 
 	friend BigUInt operator>>(const BigUInt& X,int bits);
 	friend BigUInt operator<<(const BigUInt& X,int bits);
-	
+	friend BigUInt operator&(const BigUInt&X,uint32 mask);
 	
 	friend BigUInt BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt &Q,BigUInt&R);
 	friend BigUInt Fast_BigDiv(const BigUInt& X,const BigUInt& Y,BigUInt&Q,BigUInt&R);

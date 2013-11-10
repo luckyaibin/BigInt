@@ -1,5 +1,6 @@
 #include "algorithm.h"
 
+//计算蒙哥马利乘积，在ModExp里面进行二进制模幂时每一步都会使用
 BigInt MonPro(const BigInt&a,const BigInt& b,const BigInt& r,const BigInt&n,const BigInt& n$)
 {
 	BigInt t = a*b;
@@ -82,17 +83,94 @@ int other_gcd(int a,int b,int&x,int &y)
 	y=t-(a/b)*y;  //不明处2
 	return d;
 }
+
+int modular_exp_test(int a,int b,int m);
 // 11001
-int rabin_miller(int n)
+//test_v是测试用的值
+int rabin_miller(int p,int test_v)
 {
-	int m = n-1;
-	int j = 0;
+	// 偶数
+	if ( (p&3) % 2 == 0)
+	{
+		return false;
+	}
+	int m = p-1;
+	int k = 0;
 	while(0==(m&1))
 	{
 		m = m >> 1;
-		j++;
+		k++;
 	}
-	return m;
+	int m_ = p-1;
+	while (k>=0)
+	{
+		int expmod = modular_exp_test(test_v,m_,p);
+		if (expmod == p-1)
+		{
+			return true;
+		}
+		else if (expmod!=1)
+		{
+			return false;
+		}
+		else
+		{
+			m_ = m_ >> 1;
+		}
+		k = k -1;
+	}
+	return true;
+}
+
+//用test_v来对p进行一次rabinmiller素数判断，test_v<p
+bool rabin_miller(const BigUInt& p,const BigUInt& test_v)
+{
+	uint32 v = p.GetRadixBits(0);
+	if( (p & 1) == BigUInt("0"))//偶数
+	{
+		return false;
+	}
+
+	BigUInt m = p - BigUInt("1");
+	BigUInt m_ = m;
+	int k = 0;
+
+	while ( (m&1) == BigUInt("0"))
+	{
+		if( (m&0xffffffff) == BigUInt("0") )
+		{
+			int continue_uin32 = 0;
+			while ( (m.GetRadixBits(continue_uin32) & 0xffffffff) == BigUInt("0"))
+			{
+				continue_uin32++;
+			}
+			m = m >> (32*continue_uin32);
+			k = k + 32*continue_uin32;
+		}
+		else
+		{
+			m = m >> 1;
+			k = k + 1;
+		}
+	}
+	while (k>=0)
+	{
+		BigUInt expmod = ExpMod(test_v,m_,p);
+		if (expmod == p - BigUInt("1"))
+		{
+			return true;
+		}
+		else if (expmod == BigUInt("1"))
+		{
+			m_ = m_ >> 1;
+		}
+		else
+		{
+			return false;
+		}
+		k = k - 1;
+	}
+	return true;
 }
 
 /*
@@ -235,7 +313,7 @@ int ModExp(int M,int e,int r,int n)//n is odd
 	x_ = MonPro(x_,1,r,n,n$);
 	return x_;
 }
-int modular_exp_test(int a,int b,int m=1)
+int modular_exp_test(int a,int b,int m)
 {
 	int res = 1;
 	int multiplier = a;
@@ -266,7 +344,30 @@ int test_gcd(int a,int b)
 }
 int main()
 {
-	rabin_miller(25);
+	BigUInt max_prime = "170141183460469231731687303715884105727";
+	//DumpBits(max_prime);
+
+	 
+	//for (BigUInt p=BigUInt("3");p<BigUInt("2000");)
+	for (BigUInt p=max_prime;p<max_prime /*+ BigUInt("2000")*/;)
+	{
+		int is_prime = true;
+		for(BigUInt j="2";j<BigUInt("5");)
+		{
+			if( !rabin_miller(p,j))
+			{
+				is_prime = false;
+				break;
+			}
+			j = j + BigUInt("1");
+		}
+		if (is_prime)
+		{
+			DumpBits(p);
+		}
+		p = p + BigUInt("1");
+	}
+
 	BigInt QQ,RR;
 	BigDiv2N2(BigInt("7"),BigInt("2"),QQ,RR);
 	int gcd_v = test_gcd(24,24);
@@ -282,11 +383,11 @@ int main()
 	BigInt B = "76981762398764918762398576298376495876198237645987263478562398475";
 	BigInt C = "87619823764598726349865981763948765928364985762198376498576234986598768761987";
 	
+	//蒙哥马利算法用到的R，是比模C要大的最小的2^n的值，
 	BigInt R = BigInt("1");
-	while (R < C)
-	{
-		R=R<<1;
-	}
+	 
+	R=R<<( C.m_value.GetNonZeroBitIdx()+1 );
+	 
 	BigInt Result = ModExp(A,B,R,C);
 	DumpBits(Result.m_value,"结果:");
 	return 0;

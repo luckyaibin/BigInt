@@ -22,7 +22,7 @@ BigInt operator<<(const BigInt& X,int bits);
 
 int FromString2(BigInt& N,const std::string& numbers);
 BigInt Fast_BigDiv2(const BigInt& X,const BigInt& Y,BigInt&Q,BigInt&R);
-BigInt BigDiv2N2(const BigInt&X,const BigInt& Y,BigInt&Q,BigInt&R);
+BigInt BigDiv2N2(const BigInt&X,const BigInt& Y,BigInt&Q,BigInt&R);//二进制除法的优化，Y必须为2进制形式
 
 void ExEuclid2( BigInt a, BigInt b,BigInt& x,BigInt&y );
 BigInt GCD2(const BigInt& X,const BigInt& Y);
