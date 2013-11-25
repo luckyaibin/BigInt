@@ -32,9 +32,14 @@ struct BigInt
 	{
 		
 	}
-	BigInt(const std::string& numbers)
+	BigInt(const char* numbers)
 	{
 		FromString2(*this,numbers);
+	}
+	BigInt(const BigUInt& bui)
+	{
+		m_sign = 0;
+		m_value = bui;
 	}
 
 	//¸ººÅ

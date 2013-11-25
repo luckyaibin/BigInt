@@ -411,7 +411,49 @@ BigUInt operator-( const BigUInt&N1,const BigUInt& N2 )
 	 a*d     b*d     c*d
 
 	 */
-BigUInt operator*(const BigUInt& N1,const BigUInt& N2)
+/*use karatsuba algorigthm
+ x = x1*B^N + x2;
+ y = y1*B^N + y2;
+ so x*y is :
+ x*y = x1*y1*B^2N + (x1y2+x2*y1)*B^N + x2*y2;
+ assume a = x1*y1
+		b = (x1*y2 + x2*y1)
+		c = x2*y2;
+so that
+ x*y = a*B^2N + b*B^N + c;
+
+ until, karatsuba algorithm is not more efficiency,
+ because to calculate b ,it costs two multiplications.
+
+ we find that:
+	b = (x1+x2)*(y1+y2) - x1*y2 - x2*y2,it use three mul and two addition and two minus,but:
+	where x1*y2 and x2*y2 is calculated  as a and c.
+*/
+BigUInt operator* (const BigUInt& x,const BigUInt&y)
+{
+	BigUInt R;
+	int x_length = x.ValidLength();	int y_length = y.ValidLength();
+	if (x_length==1 && y_length==1)// deepest recursion
+		 return BigUInt(uint64(x.GetRadixBits(0)*y.GetRadixBits(0)));
+	BigUInt x1,x2,y1,y2;
+	int max_len = x_length>y_length?x_length:y_length;
+	// x: 87    62736
+	// y: 66545 46557
+	//x_length = 
+	x1 = x.GetIdxRangeNumber(max_len-1,(max_len)/2);
+	x2 = x.GetIdxRangeNumber((max_len)/2 - 1,0);
+
+	y1 = y.GetIdxRangeNumber(max_len-1,(max_len)/2);
+	y2 = y.GetIdxRangeNumber((max_len)/2 - 1,0);
+
+	BigUInt a = x1*y1,c = x2*y2;
+	BigUInt b = (x1+x2)*(y1+y2) - a - c;
+
+	R =(  a<<( (max_len/2)*2) ) + (b<<(max_len/2))  + c;
+	return R;
+}
+//BigUInt operator*(const BigUInt& N1,const BigUInt& N2)
+BigUInt nouse(const BigUInt& N1,const BigUInt& N2)
 {
 	BigUInt R;
 	uint32 carry = 0;
@@ -439,8 +481,15 @@ BigUInt operator*(const BigUInt& N1,const BigUInt& N2)
 			v = v % BigUInt::RADIX;
 
 			//把值和进位加到结果中
-			R.AddRadixBits(v,index1+index2);
-			R.AddRadixBits(carry,index1+index2+1);
+			if (v>0)
+			{
+				R.AddRadixBits(v,index1+index2);
+			}			
+			if (carry>=0)
+			{
+				R.AddRadixBits(carry,index1+index2+1);
+			}
+			
 		}
 	}
 	R.TrimHiZeros();

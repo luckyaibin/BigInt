@@ -43,6 +43,8 @@ BigUInt BigDiv2N(const BigUInt&X,const BigUInt& Y,BigUInt&Q,BigUInt&R);
 BigUInt GCD(const BigUInt& X,const BigUInt& Y);
 
 //扩展欧几里德算法，求模反元素
+// a == 1 mod b
+// a*x - b*y == 1
 void ExEuclid( BigUInt a,BigUInt b,BigUInt& x,BigUInt&y );
 
 //求模幂：a^b % m
@@ -155,7 +157,23 @@ struct BigUInt
 		}
 		m_bits[pos] = v;
 	}
-	
+	//获取idx_hi 到idx_lo 索引的BigUint值
+	//例如 对于 654378 而言， idx_hi = 4，idx_lo = 2,那么返回543,不是54300！
+	//idx_hi = 9，idx_lo = 6,那么返回0
+	BigUInt GetIdxRangeNumber(int idx_hi,int idx_lo)const
+	{
+		BigUInt res;
+		int begin_idx = idx_lo;
+		int valid_len = this->ValidLength();
+		int end_idx = idx_hi > valid_len-1 ? valid_len-1 : idx_hi; 
+		while (begin_idx<=end_idx)
+		{
+			uint32 v = this->GetRadixBits(begin_idx);
+			res.SetRadixBits(v,begin_idx-idx_lo);
+			begin_idx++;
+		}
+		return res;
+	}
 	
 	//显示函数
 	friend int FromString(BigUInt& N,const std::string& numbers);

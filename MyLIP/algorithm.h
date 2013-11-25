@@ -13,6 +13,8 @@ void ex_euclid(int a,int b,int& g_x,int & g_y);
 int MonPro(int a,int b,int r,int n,int n$);
 
 
+
+BigInt ModExp(const BigInt& M,const BigInt& e,const BigInt& r,const BigInt& n);
 //用MonPro计算模乘.a和b都是原始的数据，不是residue
 int ModMul(int a,int b,int r,int n);
 
