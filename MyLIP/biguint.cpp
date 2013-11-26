@@ -434,7 +434,7 @@ BigUInt operator* (const BigUInt& x,const BigUInt&y)
 	BigUInt R;
 	int x_length = x.ValidLength();	int y_length = y.ValidLength();
 	if (x_length==1 && y_length==1)// deepest recursion
-		 return BigUInt(uint64(x.GetRadixBits(0)*y.GetRadixBits(0)));
+		 return BigUInt(uint64(x.GetRadixBits(0))*uint64(y.GetRadixBits(0)));
 	BigUInt x1,x2,y1,y2;
 	int max_len = x_length>y_length?x_length:y_length;
 	// x: 87    62736
@@ -446,7 +446,8 @@ BigUInt operator* (const BigUInt& x,const BigUInt&y)
 	y1 = y.GetIdxRangeNumber(max_len-1,(max_len)/2);
 	y2 = y.GetIdxRangeNumber((max_len)/2 - 1,0);
 
-	BigUInt a = x1*y1,c = x2*y2;
+	BigUInt a = x1*y1;
+	BigUInt c = x2*y2;
 	BigUInt b = (x1+x2)*(y1+y2) - a - c;
 
 	R =(  a<<( (max_len/2)*2) ) + (b<<(max_len/2))  + c;
